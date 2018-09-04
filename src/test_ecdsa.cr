@@ -1,6 +1,6 @@
 require "./ecdsa.cr"
 
-c = SKO::ECDSA.get_group(:Secp256k1)
+c = SKO::ECDSA.get_group(:secp256k1)
 
 x = BigInt.new("74011014024632309201919250499840047707197506903174481043386877877509365703566")
 
