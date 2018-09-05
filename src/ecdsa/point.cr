@@ -1,4 +1,4 @@
-module SKO::ECDSA
+module ECDSA
   class Point
     getter group : Group
     getter x : BigInt

@@ -13,7 +13,7 @@ require "openssl/pkcs5"
 require "openssl/digest"
 require "sha3"
 
-module SKO::ECDSA
+module ECDSA
   def self.get_group(c : Symbol)
     raise "Group #{c} not found" unless CURVES.has_key?(c)
     h = CURVES[c]

@@ -1,4 +1,4 @@
-module SKO::ECDSA
+module ECDSA
   class Group
     include SKO::Math
 

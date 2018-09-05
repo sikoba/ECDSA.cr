@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Ecdsa do
+describe ECDSA do
   # TODO: Write tests
 
   it "works" do
