@@ -72,11 +72,10 @@ module SKO::ECDSA
       # inputs (k should not be used twice)
       hash = BigInt.new(SKO::Math.hash(message), base: 16)
       k = SKO::Math.random(BigInt.new(1), n-1)
-      k = BigInt.new(55555)
 
       # computing r
-      cp = g * k
-      r = cp.x
+      curve_point = g * k
+      r = curve_point.x
       return sign(secret_key, message) if r == 0
 
       # computing s
