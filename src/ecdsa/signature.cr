@@ -1,10 +1,9 @@
 module ECDSA
   class Signature
-    getter :r, :s
+    getter r : BigInt
+    getter s : BigInt
 
-    def initialize(r : BigInt, s : BigInt)
-      @r = r
-      @s = s
+    def initialize(@r : BigInt, @s : BigInt)
     end
   end
 end

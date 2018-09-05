@@ -5,7 +5,7 @@ module ECDSA
     getter y : BigInt
     getter infinity : Bool
 
-    def initialize(@group : Group, @x : BigInt, @y : BigInt, @infinity : Bool)
+    def initialize(@group : Group, @x : BigInt, @y : BigInt, @infinity : Bool = false)
       raise "Point #{x}, #{y} is not in group #{group}" unless is_in_group?
       @x = @x % @group.p
       @y = @y % @group.p
@@ -32,7 +32,7 @@ module ECDSA
       raise "Mismatched groups" if other.group != group
     end
 
-    def equals?(other : Point) : Bool
+    def ==(other : Point) : Bool
       return false unless group == other.group
       return true if infinity && other.infinity
       return true if x == other.x && y == other.y
@@ -63,7 +63,7 @@ module ECDSA
       end
 
       # case 5:
-      return self.double if self.equals?(other)
+      return self.double if self == other
 
       # we should never get here!
       raise "Point addition failed!"
