@@ -21,14 +21,12 @@ module ECDSA
     def self.sha256(base : Bytes | String) : String
       hash = OpenSSL::Digest.new("SHA256")
       hash << base
-      puts hash.inspect
       hash.hexdigest
     end
 
     def self.sha3_256(base : Bytes | String) : String
       hash = Digest::SHA3.new(256)
       hash.update(base)
-      puts hash.inspect
       hash.hexdigest
     end
 
@@ -44,17 +42,17 @@ module ECDSA
 
       # number of bits of (n1..n2)
       bin_length = (n2-n1).to_s(2).bytesize
-      puts "bin_length of range: #{bin_length}"
+      # puts "bin_length of range: #{bin_length}"
 
       # number of bytes required
       n_bytes = bin_length / 8
       n_bytes += 1 unless bin_length % 8 == 0
-      puts "n_bytes required: #{n_bytes}"
-      puts (n2-n1).to_s(2)
+      # puts "n_bytes required: #{n_bytes}"
+      # puts (n2-n1).to_s(2)
 
       # get random bytes, convert to binary and cut down size
       s = BigInt.new(Random::Secure.hex(n_bytes), base: 16).to_s(2)[0, bin_length]
-      puts s
+      # puts s
       r = n1 + BigInt.new(s, base: 2)
       r = random(n1, n2) if r > n2
 

@@ -1,7 +1,5 @@
 module ECDSA
   class Group
-    include SKO::Math
-
     getter name : String
     getter p  : BigInt
     getter a  : BigInt
@@ -59,7 +57,7 @@ module ECDSA
     end
 
     def inverse(n1 : BigInt, n2 : BigInt)
-      SKO::Math.mod_inverse(n1, n2)
+      ECDSA::Math.mod_inverse(n1, n2)
     end
 
     def sign(secret_key : BigInt, message : String) : Array(BigInt)
@@ -70,8 +68,8 @@ module ECDSA
       s = BigInt.new(0)
 
       # inputs (k should not be used twice)
-      hash = BigInt.new(SKO::Math.hash(message), base: 16)
-      k = SKO::Math.random(BigInt.new(1), n-1)
+      hash = BigInt.new(ECDSA::Math.hash(message), base: 16)
+      k = ECDSA::Math.random(BigInt.new(1), n-1)
 
       # computing r
       curve_point = g * k
@@ -89,7 +87,7 @@ module ECDSA
 
       # some verifications of input params??
 
-      hash = BigInt.new(SKO::Math.hash(message), base: 16)
+      hash = BigInt.new(ECDSA::Math.hash(message), base: 16)
 
       c = inverse(s, n)
 
