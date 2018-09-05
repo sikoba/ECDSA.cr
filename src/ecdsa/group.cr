@@ -48,7 +48,7 @@ module ECDSA
       key_pair
     end
 
-    def create_key_pair(secret_key : BigInt)
+    def create_key_pair(secret_key : BigInt) : NamedTuple(secret_key: BigInt, public_key: Point)
       public_key = g * secret_key
       {
         secret_key: secret_key,
@@ -60,7 +60,7 @@ module ECDSA
       ECDSA::Math.mod_inverse(n1, n2)
     end
 
-    def sign(secret_key : BigInt, message : String) : Array(BigInt)
+    def sign(secret_key : BigInt, message : String) : Tuple(BigInt, BigInt)
 
       # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
 
@@ -80,7 +80,11 @@ module ECDSA
       s = (inverse(k, n) * (hash + secret_key * r)) % n
       return sign(secret_key, message) if s == 0
 
-      [r, s]
+      {r, s}
+    end
+
+    def verify(public_key : Point, message : String, signature : Tuple(BigInt, BigInt))
+      verify(public_key, message, signature[0], signature[1])
     end
 
     def verify(public_key : Point, message : String, r : BigInt, s : BigInt) : Bool
