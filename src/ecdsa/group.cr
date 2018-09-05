@@ -60,31 +60,34 @@ module ECDSA
       ECDSA::Math.mod_inverse(n1, n2)
     end
 
-    def sign(secret_key : BigInt, message : String) : Tuple(BigInt, BigInt)
+    def sign(secret_key : BigInt, message : String) : Signature
+      # inputs (k should not be used twice)
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
+      sign(secret_key, message, temp_key_k)
+    end
 
+    def sign(secret_key : BigInt, message : String, temp_key_k : BigInt) : Signature
       # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
 
       r = BigInt.new(0)
       s = BigInt.new(0)
 
-      # inputs (k should not be used twice)
       hash = BigInt.new(ECDSA::Math.hash(message), base: 16)
-      k = ECDSA::Math.random(BigInt.new(1), n-1)
 
       # computing r
-      curve_point = g * k
+      curve_point = g * temp_key_k
       r = curve_point.x
       return sign(secret_key, message) if r == 0
 
       # computing s
-      s = (inverse(k, n) * (hash + secret_key * r)) % n
+      s = (inverse(temp_key_k, n) * (hash + secret_key * r)) % n
       return sign(secret_key, message) if s == 0
 
-      {r, s}
+      Signature.new(r: r, s: s)
     end
 
-    def verify(public_key : Point, message : String, signature : Tuple(BigInt, BigInt))
-      verify(public_key, message, signature[0], signature[1])
+    def verify(public_key : Point, message : String, signature : Signature)
+      verify(public_key, message, signature.r, signature.s)
     end
 
     def verify(public_key : Point, message : String, r : BigInt, s : BigInt) : Bool
