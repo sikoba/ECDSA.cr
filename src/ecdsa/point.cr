@@ -5,10 +5,16 @@ module ECDSA
     getter y : BigInt
     getter infinity : Bool
 
-    def initialize(@group : Group, @x : BigInt, @y : BigInt, @infinity : Bool = false)
-      raise "Point #{x}, #{y} is not in group #{group}" unless is_in_group?
+    def initialize(@group : Group, @x : BigInt, @y : BigInt)
+      @infinity = false
+      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
       @x = @x % @group.p
       @y = @y % @group.p
+    end
+
+    def initialize(@group : Group, @infinity : Bool)
+      @x = 0.to_big_i
+      @y = 0.to_big_i
     end
 
     def p
@@ -29,7 +35,7 @@ module ECDSA
     end
 
     def check_group!(other : Point)
-      raise "Mismatched groups" if other.group != group
+      raise PointsGroupMismatch.new if other.group != group
     end
 
     def ==(other : Point) : Bool
@@ -40,7 +46,6 @@ module ECDSA
     end
 
     def +(other : Point ) : Point
-
       check_group! other
 
       # cases 1 and 2
@@ -59,7 +64,7 @@ module ECDSA
         lambda = (y - other.y) * @group.inverse(x - other.x, p) % p
         x_new = (lambda**2 - x - other.x) % p
         y_new = (lambda * (x - x_new) - y) % p
-        return Point.new(@group, x_new, y_new, false)
+        return Point.new(@group, x_new, y_new)
       end
 
       # case 5:
@@ -67,17 +72,16 @@ module ECDSA
 
       # we should never get here!
       raise "Point addition failed!"
-
     end
 
     def double : Point
       lambda = (3 * x**2 + a) * @group.inverse(2*y, p) % p
       x_new = (lambda**2 - 2*x) % p
       y_new = (lambda*(x - x_new) - y) % p
-      return Point.new(@group, x_new, y_new, false)
+      return Point.new(@group, x_new, y_new)
     end
 
-    def *(i : BigInt) : Point
+    def *(i : Int) : Point
       res = @group.infinity
       v = self
 

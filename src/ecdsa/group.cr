@@ -18,11 +18,11 @@ module ECDSA
     end
 
     def g
-      Point.new(self, @gx, @gy, false)
+      Point.new(self, @gx, @gy)
     end
 
     def infinity
-      Point.new(self, BigInt.new, BigInt.new, true)
+      Point.new(self, true)
     end
 
     def create_key_pair
