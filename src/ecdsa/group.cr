@@ -49,11 +49,14 @@ module ECDSA
     end
 
     def create_key_pair(secret_key : BigInt) : NamedTuple(secret_key: BigInt, public_key: Point)
-      public_key = g * secret_key
       {
         secret_key: secret_key,
-        public_key: public_key,
+        public_key: create_public_key(secret_key),
       }
+    end
+
+    def create_public_key(secret_key : BigInt) : Point
+      g * secret_key
     end
 
     def inverse(n1 : BigInt, n2 : BigInt)

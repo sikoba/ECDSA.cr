@@ -5,5 +5,9 @@ module ECDSA
 
     def initialize(@r : BigInt, @s : BigInt)
     end
+
+    def ==(other : Signature) : Bool
+      s == other.s && r == other.r
+    end
   end
 end
