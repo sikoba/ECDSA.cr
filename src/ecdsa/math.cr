@@ -1,7 +1,6 @@
 module ECDSA
   module Math
     def self.mod_inverse(a : BigInt, n : BigInt) : BigInt
-
       # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
 
       t, newt = BigInt.new(0), BigInt.new(1)
@@ -13,7 +12,7 @@ module ECDSA
         r, newr = newr, r - quotient * newr
       end
 
-      raise "inverse: #{a} is not invertible in Z:#{n}" if r > 1
+      raise NotInvertible.new("inverse: #{a} is not invertible in Z:#{n}") if r > 1
 
       return t % n
     end

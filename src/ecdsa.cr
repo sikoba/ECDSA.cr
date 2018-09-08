@@ -1,8 +1,10 @@
-require "./ecdsa/math"
-require "./ecdsa/group"
-require "./ecdsa/point"
-require "./ecdsa/curves"
+# require "./ecdsa/math"
+# require "./ecdsa/group"
+# require "./ecdsa/point"
+# require "./ecdsa/curves"
+
 require "./ecdsa/*"
+require "./ecdsa/exceptions/*"
 
 require "big"
 require "json"
