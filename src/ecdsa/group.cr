@@ -26,26 +26,8 @@ module ECDSA
     end
 
     def create_key_pair
-      random_key = Random::Secure.hex(32)
-      secret_key = BigInt.new(random_key, base: 16)
-
-      secret_key_hex = secret_key.to_s(16)
-      return create_key_pair if secret_key_hex.hexbytes? == nil || secret_key_hex.size != 64
-
-      key_pair = create_key_pair(secret_key)
-
-      x = key_pair[:public_key].x.to_s(16)
-      y = key_pair[:public_key].y.to_s(16)
-
-      if x.hexbytes? == nil || y.hexbytes? == nil
-        return create_key_pair
-      end
-
-      if x.size != 64 || y.size != 64
-        return create_key_pair
-      end
-
-      key_pair
+      secret_key = ECDSA::Math.random(BigInt.new(1), n - 1)
+      create_key_pair(secret_key)
     end
 
     def create_key_pair(secret_key : BigInt) : NamedTuple(secret_key: BigInt, public_key: Point)
@@ -65,7 +47,7 @@ module ECDSA
 
     def sign(secret_key : BigInt, message : String) : Signature
       # inputs (k should not be used twice)
-      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
       sign(secret_key, message, temp_key_k)
     end
 

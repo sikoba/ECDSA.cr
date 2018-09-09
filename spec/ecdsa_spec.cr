@@ -1,28 +1,30 @@
 require "./spec_helper"
 
+macro sign_and_verify_spec(group_name)
+  it "#{ {{ group_name }} }" do
+    %message   = Random::Secure.hex(256)
+    %group     = ECDSA.get_group {{ group_name }}
+
+    %key_pair  = %group.create_key_pair
+
+    %signature = %group.sign(%key_pair[:secret_key], %message)
+    %verify    = %group.verify(%key_pair[:public_key], %message, %signature)
+
+    %verify.should eq true
+  end
+end
+
 describe ECDSA do
   describe "Signing and verification" do
-    it do
-      message   = "Hello, Bob"
-      secp256k1 = ECDSA.get_group(:secp256k1)
-      key_pair  = secp256k1.create_key_pair
-
-      signature = secp256k1.sign(key_pair[:secret_key], message)
-      verify    = secp256k1.verify(key_pair[:public_key], message, signature)
-
-      verify.should eq true
-    end
-  end
-
-  describe "Signing" do
-    it "secp256k1" do
-      message     = "Life is great"
-      secp256k1   = ECDSA.get_group(:secp256k1)
-      secret_key  = BigInt.new(100)
-
-      signature = secp256k1.sign(secret_key, message, BigInt.new(200))
-
-      signature.s.should eq BigInt.new("62147387284982819000624868082324333411518046001506373700808611097526682119507")
-    end
+    [
+      :secp192k1,
+      :secp192r1,
+      :secp224k1,
+      :secp224r1,
+      :secp256k1,
+      :secp256r1,
+      :secp384r1,
+      :secp521r1
+    ].each { |group| sign_and_verify_spec(group) }
   end
 end
