@@ -14,9 +14,9 @@ verify:                0.090000   0.010000   0.100000 (  0.084240)
 ```
 
 ## TODO
-0) test all *done*
-1) add param check *done*
-2) test random? *not needed*
+0) test all **done**
+1) add param check **done**
+2) test random? **not needed**
 3) code lint?
 4) doc?
 5) benchmark?
