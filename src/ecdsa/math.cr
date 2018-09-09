@@ -33,6 +33,24 @@ module ECDSA
       sha256(base)
     end
 
+    def self.bit_length(integer)
+      length = 0
+      while integer > 0
+        length += 1
+        integer >>= 1
+      end
+      length
+    end
+
+    def self.normalize_digest(hexdigest : String, bit_length : Int) : BigInt
+      hexdigest_bit_size = hexdigest.size * 4 # each hex is 4 bit
+      if hexdigest_bit_size > bit_length
+        BigInt.new(hexdigest, base: 16) >> (hexdigest_bit_size - bit_length)
+      else
+        BigInt.new(hexdigest, base: 16)
+      end
+    end
+
     def self.random(n1 : BigInt, n2 : BigInt) : BigInt
       r = BigInt.new(1)
 

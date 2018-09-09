@@ -17,4 +17,3 @@ module ECDSA
     return Group.new(c.to_s, h[:p], h[:a], h[:b], h[:gx], h[:gy], h[:n])
   end
 end
-

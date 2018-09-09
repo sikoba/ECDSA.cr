@@ -41,4 +41,17 @@ describe ECDSA::Math do
 
     ECDSA::Math.hash(message).should eq hash
   end
+
+  it ".bit_length" do
+    number = 107
+
+    ECDSA::Math.bit_length(number).should eq 7
+  end
+
+  it ".normalize_digest" do
+    hexdigest   = 108.to_s(16) # 7 bits
+    bit_length  = 5
+
+    ECDSA::Math.normalize_digest(hexdigest, bit_length).should eq 13
+  end
 end
