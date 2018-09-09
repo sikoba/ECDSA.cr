@@ -72,8 +72,10 @@ module ECDSA
     end
 
     def verify(public_key : Point, message : String, r : BigInt, s : BigInt) : Bool
-
-      # some verifications of input params??
+      raise SignatureNotInRange.new unless (1...n).covers?(r) && (1...n).covers?(s)
+      raise PublicKeyIsInfinity.new if public_key.infinity
+      raise PointNotInGroup.new unless public_key.group == self && public_key.is_in_group?
+      raise "Did not result in infinity" if public_key * n != Point.new(self, true)
 
       hash = ECDSA::Math.hash(message)
       # leftmost part of hash
