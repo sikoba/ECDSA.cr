@@ -2,8 +2,6 @@ require "./ecdsa/*"
 require "./ecdsa/exceptions/*"
 
 require "big"
-require "json"
-require "base64"
 require "random"
 require "openssl"
 require "openssl/pkcs5"
