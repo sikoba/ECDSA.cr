@@ -1,14 +1,15 @@
 name: ecdsa
-version: 0.1.0
+version: 0.2.0
 
 authors:
   - Alex Kampa <ak@sikoba.com>
+  - Ihor Tsykalo <sarcasm008@gmail.com>
 
 targets:
   ecdsa:
     main: src/ecdsa.cr
 
-crystal: 0.25.0
+crystal: 0.26.1
 
 license: MIT
 
