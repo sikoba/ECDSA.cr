@@ -16,7 +16,7 @@
 
 * [ ] benchmarking against implementations in other languages
 
-* [ ] (not directly related, but put here to not forget) allowing BigInt initialisations with underscore like this: BigInt.new("FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFE_FFFFEE37", base: 16),
+* [x] allowing BigInt initialisations with underscore like this: BigInt.new("FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFE_FFFFEE37", base: 16). Done: https://github.com/crystal-lang/crystal/pull/7107
 
 
 ## Current benchmark (secp256k1)
