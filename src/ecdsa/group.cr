@@ -19,12 +19,12 @@ module ECDSA
 
     def ==( other : ECDSA::Group )
       ( @name == other.name ) &&
-	 ( @p == other.p ) &&
-	 ( @a == other.a ) &&
-	 ( @b == other.b ) &&
-	 ( @gx == other.gx ) &&
-	 ( @gy == other.gy ) &&
-	 ( @n == other.n )
+      ( @p == other.p ) &&
+      ( @a == other.a ) &&
+      ( @b == other.b ) &&
+      ( @gx == other.gx ) &&
+      ( @gy == other.gy ) &&
+      ( @n == other.n )
     end
 
     def g
