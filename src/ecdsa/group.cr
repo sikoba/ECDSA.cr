@@ -17,6 +17,16 @@ module ECDSA
                    @n : BigInt)
     end
 
+    def ==( other : ECDSA::Group )
+      ( @name == other.name ) &&
+	 ( @p == other.p ) &&
+	 ( @a == other.a ) &&
+	 ( @b == other.b ) &&
+	 ( @gx == other.gx ) &&
+	 ( @gy == other.gy ) &&
+	 ( @n == other.n )
+    end
+
     def g
       Point.new(self, @gx, @gy)
     end
@@ -96,3 +106,4 @@ module ECDSA
     end
   end
 end
+
