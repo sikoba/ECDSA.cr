@@ -212,6 +212,8 @@ describe ECDSA::Group do
         result: false
       }
     ].each do |spec|
+      ECDSA.get_group( spec[:group_name] ).should eq( ECDSA.get_group( spec[:group_name] ) )
+
       verify_spec(spec[:group_name], spec[:message], spec[:s], spec[:r], spec[:public_key_x], spec[:public_key_y], spec[:result])
     end
   end
