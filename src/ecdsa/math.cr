@@ -7,7 +7,7 @@ module ECDSA
       r, newr = n, a % n
 
       while newr > 0
-        quotient = r / newr
+        quotient = r // newr
         t, newt = newt, t - quotient * newt
         r, newr = newr, r - quotient * newr
       end
@@ -15,6 +15,28 @@ module ECDSA
       raise NotInvertible.new("inverse: #{a} is not invertible in Z:#{n}") if r > 1
 
       return t % n
+    end
+
+    def self.mod_exp(a : BigInt, exp : BigInt, mod : BigInt)
+      res = BigInt.new(1);
+      while (exp > 0)
+        if ((exp & 1) > 0)
+          res = (res*a).modulo(mod);
+        end
+        exp >>= 1;
+        a = (a*a).modulo(mod)
+      end
+      return res;
+    end
+  
+    
+    def self.mod_sqrt(a : BigInt, n : BigInt) : BigInt
+      # CAUTION: This works ONLY if n is prime but we do not check - We also do not check if a is a quadratic residue
+      # https://en.wikipedia.org/wiki/Quadratic_residue
+      if n % 4 == 3
+        return mod_exp(a,(n+1) // 4, n)
+      end
+      raise Exception.new "Not implemented"
     end
 
     def self.sha256(base : Bytes | String) : String

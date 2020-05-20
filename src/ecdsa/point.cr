@@ -93,5 +93,15 @@ module ECDSA
 
       return res
     end
+
+    def from_abscissa(new_x, parity)
+      @x = new_x
+      y_square = (x**3 +  x*a + b) % p
+      @y = ECDSA::Math.mod_sqrt(y_square, p)
+      if (y % 2 != parity)
+        @y = -@y
+      end
+      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
+    end
   end
 end
