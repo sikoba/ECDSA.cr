@@ -18,23 +18,22 @@ module ECDSA
     end
 
     def self.mod_exp(a : BigInt, exp : BigInt, mod : BigInt)
-      res = BigInt.new(1);
+      res = BigInt.new(1)
       while (exp > 0)
         if ((exp & 1) > 0)
-          res = (res*a).modulo(mod);
+          res = (res*a).modulo(mod)
         end
-        exp >>= 1;
+        exp >>= 1
         a = (a*a).modulo(mod)
       end
-      return res;
+      return res
     end
-  
-    
+
     def self.mod_sqrt(a : BigInt, n : BigInt) : BigInt
       # CAUTION: This works ONLY if n is prime but we do not check - We also do not check if a is a quadratic residue
       # https://en.wikipedia.org/wiki/Quadratic_residue
       if n % 4 == 3
-        return mod_exp(a,(n+1) // 4, n)
+        return mod_exp(a, (n + 1) // 4, n)
       end
       raise Exception.new "Not implemented"
     end
@@ -80,11 +79,11 @@ module ECDSA
       n1, n2 = n2, n1 if n1 > n2
 
       # number of bits of (n1..n2)
-      bin_length = (n2-n1).to_s(2).bytesize
+      bin_length = (n2 - n1).to_s(2).bytesize
       # puts "bin_length of range: #{bin_length}"
 
       # number of bytes required
-      n_bytes = bin_length / 8
+      n_bytes = bin_length // 8
       n_bytes += 1 unless bin_length % 8 == 0
       # puts "n_bytes required: #{n_bytes}"
       # puts (n2-n1).to_s(2)
