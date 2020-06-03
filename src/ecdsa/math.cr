@@ -83,13 +83,13 @@ module ECDSA
       # puts "bin_length of range: #{bin_length}"
 
       # number of bytes required
-      n_bytes = bin_length / 8
+      n_bytes = bin_length // 8
       n_bytes += 1 unless bin_length % 8 == 0
       # puts "n_bytes required: #{n_bytes}"
       # puts (n2-n1).to_s(2)
 
       # get random bytes, convert to binary and cut down size
-      s = BigInt.new(Random::Secure.hex(n_bytes.to_i), base: 16).to_s(2)[0, bin_length]
+      s = BigInt.new(Random::Secure.hex(n_bytes), base: 16).to_s(2)[0, bin_length]
       # puts s
       r = n1 + BigInt.new(s, base: 2)
       r = random(n1, n2) if r > n2
