@@ -82,6 +82,9 @@ module ECDSA
     end
 
     def *(i : Int) : Point
+      
+      return self.mul(i) if @group.pre.nil?
+      
       res = @group.infinity
       v = self
 
@@ -92,6 +95,26 @@ module ECDSA
       end
 
       return res
+    end
+
+    def mul(i : Int) : Point
+      d = @group.d
+      br = i.to_s(base: 2)
+
+      if br.size < d
+        # need to prepend some zeroes
+        h = d - br.size
+        br = "0" * h + br
+      end
+
+      ary = br.split("").reverse
+ 
+      pres = Point.new(@group, 0, 0)
+      (0..d).each do |i|
+        pres = pres + @group.pre[i] if ary[i] == "1"
+      end
+  
+      pres    
     end
 
     def from_abscissa(new_x, parity)

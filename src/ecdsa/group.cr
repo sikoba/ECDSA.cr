@@ -15,6 +15,16 @@ module ECDSA
                    @gx : BigInt,
                    @gy : BigInt,
                    @n : BigInt)
+      
+      pre = nil
+      if ECDSA::PRECOMPUTED.key?(name)
+        pre = Array(ECDSA::Point).new
+        d = ECDSA::CURVES[name][:d]
+        (0..d).each do |i|
+          pre << Point.new(self, ECDSA::PRECOMPUTED[name][i][0], ECDSA::PRECOMPUTED[name][i][1])
+        end
+      end
+        
     end
 
     def ==( other : ECDSA::Group )
