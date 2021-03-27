@@ -9,11 +9,9 @@ targets:
   ecdsa:
     main: src/ecdsa.cr
 
-crystal: 0.26.1
+crystal: 0.36.0
 
 license: MIT
 
 dependencies:
-  sha3:
-    github: OscarBarrett/crystal-sha3
-    version: ~> 0.3
+

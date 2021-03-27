@@ -3,10 +3,7 @@ require "./ecdsa/exceptions/*"
 
 require "big"
 require "random"
-require "openssl"
-require "openssl/pkcs5"
-require "openssl/digest"
-require "sha3"
+require "digest/sha256"
 
 module ECDSA
   def self.get_group(c : Symbol)

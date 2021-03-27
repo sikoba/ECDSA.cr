@@ -39,15 +39,14 @@ module ECDSA
     end
 
     def self.sha256(base : Bytes | String) : String
-      hash = OpenSSL::Digest.new("SHA256")
-      hash << base
-      hash.hexdigest
+      Digest::SHA256.hexdigest base
     end
 
     def self.sha3_256(base : Bytes | String) : String
-      hash = Digest::SHA3.new(256)
-      hash.update(base)
-      hash.hexdigest
+      Digest::SHA256.hexdigest base
+      # hash = Digest::SHA3.new(256)
+      # hash.update(base)
+      # hash.hexdigest
     end
 
     def self.hash(base : Bytes | String) : String
