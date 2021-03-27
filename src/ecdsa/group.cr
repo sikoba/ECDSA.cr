@@ -7,6 +7,8 @@ module ECDSA
     getter gx : BigInt
     getter gy : BigInt
     getter n  : BigInt
+    getter d  : Int32
+    getter pre : Array(ECDSA::Point)
 
     def initialize(@name : String,
                    @p : BigInt,
@@ -16,14 +18,16 @@ module ECDSA
                    @gy : BigInt,
                    @n : BigInt)
       
-      d = nil
-      pre = nil
+      @d = 0
+      @pre = Array(ECDSA::Point).new
 
-      if ECDSA::PRECOMPUTED.key?(name)
-        d = ECDSA::CURVES[name][:d]
-        pre = Array(ECDSA::Point).new
-        (0..d).each do |i|
-          pre << Point.new(self, ECDSA::PRECOMPUTED[name][i][0], ECDSA::PRECOMPUTED[name][i][1])
+      if ECDSA::CURVES.has_key?(@name)
+        @d = ECDSA::CURVES[@name][:d] - 1
+      end
+
+      if ECDSA::PRECOMPUTED.has_key?(@name)
+        (0..@d).each do |i|
+          @pre << Point.new(self, ECDSA::PRECOMPUTED[@name][i][0], ECDSA::PRECOMPUTED[@name][i][1])
         end
       end
         

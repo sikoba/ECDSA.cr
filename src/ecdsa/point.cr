@@ -109,7 +109,8 @@ module ECDSA
 
       ary = br.split("").reverse
  
-      pres = Point.new(@group, 0, 0)
+      pres = Point.new(@group, BigInt.new("0"), BigInt.new("0"))
+
       (0..d).each do |i|
         pres = pres + @group.pre[i] if ary[i] == "1"
       end
