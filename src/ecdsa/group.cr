@@ -16,10 +16,12 @@ module ECDSA
                    @gy : BigInt,
                    @n : BigInt)
       
+      d = nil
       pre = nil
+
       if ECDSA::PRECOMPUTED.key?(name)
-        pre = Array(ECDSA::Point).new
         d = ECDSA::CURVES[name][:d]
+        pre = Array(ECDSA::Point).new
         (0..d).each do |i|
           pre << Point.new(self, ECDSA::PRECOMPUTED[name][i][0], ECDSA::PRECOMPUTED[name][i][1])
         end
