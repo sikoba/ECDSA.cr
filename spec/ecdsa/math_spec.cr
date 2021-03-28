@@ -21,23 +21,16 @@ describe ECDSA::Math do
     end
   end
 
-  it ".sha256" do
-    message = "Hello world"
-    hash    = "64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c"
-
-    ECDSA::Math.sha256(message).should eq hash
-  end
-
   it ".sha3_256" do
     message = "Hello world"
-    hash    = "369183d3786773cef4e56c7b849e7ef5f742867510b676d6b38f8e38a222d8a2"
+    hash = "369183d3786773cef4e56c7b849e7ef5f742867510b676d6b38f8e38a222d8a2"
 
     ECDSA::Math.sha3_256(message).should eq hash
   end
 
   it ".hash" do
     message = "Hello world"
-    hash    = "64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c"
+    hash = "369183d3786773cef4e56c7b849e7ef5f742867510b676d6b38f8e38a222d8a2"
 
     ECDSA::Math.hash(message).should eq hash
   end
@@ -49,8 +42,8 @@ describe ECDSA::Math do
   end
 
   it ".normalize_digest" do
-    hexdigest   = 108.to_s(16) # 7 bits
-    bit_length  = 5
+    hexdigest = 108.to_s(16) # 7 bits
+    bit_length = 5
 
     ECDSA::Math.normalize_digest(hexdigest, bit_length).should eq 13
   end

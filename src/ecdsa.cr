@@ -3,7 +3,9 @@ require "./ecdsa/exceptions/*"
 
 require "big"
 require "random"
-require "digest/sha256"
+# require "digest/sha256"
+require "./sha3/*"
+require "./sha3/digest/*"
 
 module ECDSA
   def self.get_group(c : Symbol)

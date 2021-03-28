@@ -38,19 +38,12 @@ module ECDSA
       raise Exception.new "Not implemented"
     end
 
-    def self.sha256(base : Bytes | String) : String
-      Digest::SHA256.hexdigest base
-    end
-
     def self.sha3_256(base : Bytes | String) : String
-      Digest::SHA256.hexdigest base
-      # hash = Digest::SHA3.new(256)
-      # hash.update(base)
-      # hash.hexdigest
+      Digest::SHA3.hexdigest base
     end
 
     def self.hash(base : Bytes | String) : String
-      sha256(base)
+      sha3_256(base)
     end
 
     def self.bit_length(integer)
