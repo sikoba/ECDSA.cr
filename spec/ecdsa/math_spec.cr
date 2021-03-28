@@ -28,11 +28,25 @@ describe ECDSA::Math do
     ECDSA::Math.sha3_256(message).should eq hash
   end
 
+  it ".sha3_256_compare" do
+    message = "SHA3 hash"
+    hash = "53d7cb74d60d696a45bf3d65df5e8f21c1cb6cee1a3162e4544af28f948fbf15"
+
+    ECDSA::Math.sha3_256(message).should eq hash
+  end
+
   it ".hash" do
     message = "Hello world"
     hash = "369183d3786773cef4e56c7b849e7ef5f742867510b676d6b38f8e38a222d8a2"
 
     ECDSA::Math.hash(message).should eq hash
+  end
+
+  it ".hash_compare" do
+    message = "SHA3 hash"
+    hash = "53d7cb74d60d696a45bf3d65df5e8f21c1cb6cee1a3162e4544af28f948fbf15"
+
+    ECDSA::Math.sha3_256(message).should eq hash
   end
 
   it ".bit_length" do
