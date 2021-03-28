@@ -19,12 +19,12 @@
 * [x] allowing BigInt initialisations with underscore like this: BigInt.new("FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFE_FFFFEE37", base: 16). Done: https://github.com/crystal-lang/crystal/pull/7107
 
 
-## Current benchmark (secp256k1)
+## Current benchmark (secp256k1) using SHA3
 ```
                            user     system      total        real
-key-pair generation:   0.050000   0.010000   0.060000 (  0.046845)
-sign:                  0.060000   0.000000   0.060000 (  0.046259)
-verify:                0.140000   0.010000   0.150000 (  0.140880)
+key-pair generation:   0.022889   0.000033   0.022922 (  0.019881)
+sign:                  0.023829   0.000049   0.023878 (  0.021340)
+verify:                0.064223   0.008755   0.072978 (  0.065146)
 ```
 If turn of 1 param check in verify method:
 ```
