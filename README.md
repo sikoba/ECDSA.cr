@@ -1,4 +1,4 @@
-## TODO
+## This is a legacy version of ECDSA.cr
 
 This is a copy of a previous "main" branch that can be used with earlier versions of Crystal, up to  Crystal 0.35.
 
