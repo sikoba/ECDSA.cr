@@ -110,7 +110,7 @@ To speed up signing (significantly) and verification (a bit), you can use the cu
 
 * [ ] provide more usage examples, e.g. generating an Ethereum address from a private key (one Keccak is implemented), genrating a Bitcoin address etc.
 
-* [ ] add h to group.cr, use to verify signatures when h > 1
+* [ ] add h to group.cr, add ability to sign and verify signatures when h > 1
 
 ## Current benchmark (secp256k1) using SHA3
 ```

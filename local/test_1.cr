@@ -68,23 +68,24 @@ puts "\nVerifying signature"
 verify = g.verify(key_pair[:public_key], message, signature)
 puts "Result of verification: #{verify}"
 
+#
+
 puts "\n\n################################### For README end ########################\n\n"
 
-
+#
 
 k = ECDSA::Math.random(BigInt.new(1), g.n-1)
 puts "k: #{k}"
 puts
 
+#
 
 message = "Hello world"
 sec = BigInt.new("45088181819889614099500139968055079267329034062173137940193777846146779387277", base: 10)
 sec = BigInt.new("181819889614099500139968055079267329034062173137940193777846146779387277", base: 10)
 
-
-
-
 # not precomputed
+
 puts "\n=== not precomputed"
 
 elapsed_time = Time.measure do
@@ -101,6 +102,7 @@ end
 puts elapsed_time
 
 # precomputed
+
 puts "\n=== precomputed"
 
 elapsed_time = Time.measure do
