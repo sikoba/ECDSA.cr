@@ -47,7 +47,6 @@ elapsed_time = Time.measure do
     puts "Public key (y): #{key_pair2.[:public_key].y}"
     signature2 = group2.sign(sec, message, k)
     puts signature2.inspect
-    puts "now verify"
     verify2 = group2.verify(key_pair2[:public_key], message, signature2)
     puts "Result of second verification: #{verify2}"
 end

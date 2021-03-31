@@ -7,7 +7,7 @@ module ECDSA
 
     def initialize(@group : Group, @x : BigInt, @y : BigInt, override = 0)
       @infinity = false
-      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless (is_in_group? || override == 1)
+      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
       @x = @x % @group.p
       @y = @y % @group.p
     end
@@ -83,7 +83,8 @@ module ECDSA
 
     def *(i : Int) : Point
       
-      return self.mul(i) if @group.pre.size > 0
+      # mul is only called when multiplying g
+      return self.mul(i) if @group.pre.size > 0 && self == @group.g
       
       res = @group.infinity
       v = self
