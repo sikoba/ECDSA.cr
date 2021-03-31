@@ -133,3 +133,17 @@ key-pair generation:  0.110000   0.000000   0.110000 (  0.105881)
 sign:                 0.110000   0.000000   0.110000 (  0.107868)
 verify:               0.210000   0.000000   0.210000 (  0.214049)
 ```
+
+## Impact of using precomputed values
+
+Using the precomputed curve :secp256k1_PRE is faster than :secp256k1, especially for key-pair generation and signing:
+
+```
+    key-pair generation:  46.90  ( 21.32ms) (± 4.85%)  10.4MB/op
+                   sign:  47.35  ( 21.12ms) (± 4.41%)  10.3MB/op
+                 verify:  14.83  ( 67.42ms) (± 6.27%)  32.5MB/op
+
+key-pair generation PRE: 142.43  (  7.02ms) (± 5.30%)  3.44MB/op
+               sign_PRE: 141.27  (  7.08ms) (± 4.90%)  3.47MB/op
+             verify_PRE:  18.67  ( 53.55ms) (± 5.53%)  25.9MB/op
+```
