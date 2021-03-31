@@ -1,6 +1,6 @@
 module ECDSA
   class Group
-    getter name : String
+    getter name : Symbol
     getter p  : BigInt
     getter a  : BigInt
     getter b  : BigInt
@@ -10,7 +10,7 @@ module ECDSA
     getter d  : Int32
     getter pre : Array(ECDSA::Point)
 
-    def initialize(@name : String,
+    def initialize(@name : Symbol,
                    @p : BigInt,
                    @a : BigInt,
                    @b : BigInt,
@@ -18,16 +18,12 @@ module ECDSA
                    @gy : BigInt,
                    @n : BigInt)
       
-      @d = 0
+      @d = ECDSA::Math.bit_length(p)
       @pre = Array(ECDSA::Point).new
 
-      if ECDSA::CURVES.has_key?(@name)
-        @d = ECDSA::CURVES[@name][:d] - 1
-      end
-
-      if ECDSA::PRECOMPUTED.has_key?(@name)
-        (0..@d).each do |i|
-          @pre << Point.new(self, ECDSA::PRECOMPUTED[@name][i][0], ECDSA::PRECOMPUTED[@name][i][1])
+      if PRECOMPUTED.has_key?(@name)
+        (0..@d-1).each do |i|
+          @pre << Point.new(self, PRECOMPUTED[@name][i][0], PRECOMPUTED[@name][i][1])
         end
       end
         

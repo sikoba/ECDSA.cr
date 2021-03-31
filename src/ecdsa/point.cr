@@ -5,9 +5,9 @@ module ECDSA
     getter y : BigInt
     getter infinity : Bool
 
-    def initialize(@group : Group, @x : BigInt, @y : BigInt)
+    def initialize(@group : Group, @x : BigInt, @y : BigInt, override = 0)
       @infinity = false
-      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
+      raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless (is_in_group? || override == 1)
       @x = @x % @group.p
       @y = @y % @group.p
     end
@@ -83,7 +83,7 @@ module ECDSA
 
     def *(i : Int) : Point
       
-      return self.mul(i) if @group.pre.nil?
+      return self.mul(i) if @group.pre.size > 0
       
       res = @group.infinity
       v = self
@@ -109,13 +109,14 @@ module ECDSA
 
       ary = br.split("").reverse
  
-      pres = Point.new(@group, BigInt.new("0"), BigInt.new("0"))
+      res = @group.infinity
+      v = self
 
-      (0..d).each do |i|
-        pres = pres + @group.pre[i] if ary[i] == "1"
+      (0..d-1).each do |i|
+        res = res + @group.pre[i] if ary[i] == "1"
       end
   
-      pres    
+      res    
     end
 
     def from_abscissa(new_x, parity)
