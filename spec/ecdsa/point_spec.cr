@@ -2,7 +2,7 @@ require "./../spec_helper"
 
 describe ECDSA::Point do
   simple_group = ECDSA::Group.new(
-    name: "custom",
+    name: :custom,
     p: 59.to_big_i,
     a: 17.to_big_i,
     b: 5.to_big_i,
@@ -17,7 +17,7 @@ describe ECDSA::Point do
       y = 10.to_big_i
       x = 0.to_big_i
       group = ECDSA::Group.new(
-        name: "custom",
+        name: :custom,
         p: 3.to_big_i,
         a: 0.to_big_i,
         b: 0.to_big_i,
@@ -37,7 +37,7 @@ describe ECDSA::Point do
 
     it "assigns @x and @y mod @group.p" do
       group = ECDSA::Group.new(
-        name: "custom",
+        name: :custom,
         p: 3.to_big_i,
         a: 1.to_big_i,
         b: 1.to_big_i,
