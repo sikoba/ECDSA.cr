@@ -6,10 +6,36 @@ To use this shard, start by adding it to your shard.yml like so:
 dependencies:
   ecdsa:
     github: sikoba/ECDSA.cr
-    version: ~> 0.1
+    version: ~> 1.0
 ```
 
 This requires Crystal 0.36 or higher. An older version, which works with Crystal 0.35 and uses SHA256 for hashing, is available as branch "legacy-crystal-0.35"
+
+## Improving Perfromance
+
+#### Caching multiples of the generating point
+
+In order to speed up signing and signature verification, multiples of the generating point of the form g * 2^n are cached by default when initialising a curve (there is an optional flag to disable this).
+
+For the curve :secp256k1, these values are precomputed in ecdsa/precomuted.cr. Precomputing only provides a very slight gain when a curve is initialised, while increasing the overall size of the shard quite significantly, so we did not add precomputed values for other curves. More precomputed values can be added using local/precompute_gen.cr.
+
+#### Caching public keys
+
+Signature verification requires multiplying the sender's public key. If you know that you will need to verify several messages from the same sender, you can cache the public key multiplications, which will significantly speed up subsequent verifications:  
+
+```
+g.add_to_cache(public_key)
+```
+
+This public_key must be a point of the curve. Note that it is possible to also remove a public key from the cache.
+
+#### Removing verification sanity checks
+
+Another performance improvement can be obtained by removing certain sanity checks when verifying a signature, which can be done if the public key is known already:
+
+```
+g.verify(public_key, message, signature, false)
+```
 
 ## Usage Examples
 
@@ -43,7 +69,7 @@ puts "g.d: #{g.d}" #=> 256
 Here is how to create a new key pair for a given group g: 
 
 ```
-key_pair = g1.create_key_pair()
+key_pair = g.create_key_pair()
 puts "Secret key: #{key_pair.[:secret_key]}"
 puts "Public key (x): #{key_pair.[:public_key].x}"
 puts "Public key (y): #{key_pair.[:public_key].y}"
@@ -63,14 +89,14 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 #=> 42655463775677901349476176253478345062189292709218709770749313858929229563957
 ```
 
-#### Signing
+#### Signing using SHA3 (default)
 
-The default signature start by hasing the message using SHA3, then signs using a random integer:
+The default signature start by hashing the message using SHA3, then signs using a random integer:
 
 ```
 signature = g.sign(sec, message)
-puts signature.r #=> 41299063418692046109627559638328395711492145286793497389846134068804323840081
-puts signature.s #=> 75335275323898069941217967781306232505574825015382438464958146008911188316568
+puts signature.r
+puts signature.s
 ```
 
 You can also use your own random number:
@@ -82,19 +108,30 @@ puts signature.r #=> 46936881718680924751941056637981176854079153858678292484057
 puts signature.s #=> 18442110116601975958734127083110648061233993479485730263351699466754248595366
 ```
 
-You can also use another hashing sunction, in which case you will need to sign a number. See "group.cr" for more ways to sign.
+You can also use another hashing function, in which case you will need to sign a number. See "group.cr" for more ways to sign.
 
 #### Verify signature
 
+Assuming the public key has the components pub_x and pub_y:
+
 ```
-verify = g.verify(key_pair[:public_key], message, signature)
+public_key = ECDSA::Point.new(g, pub_x, pub_y)
+verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
 ```
 
-#### Precomputed curves
+#### Signing and verifying using SHA256
 
-To speed up signing (significantly) and verification (a bit), you can use the curves :secp256k1_PRE and :secp256r1_PRE, for which values of g * 2^n are precomputed.
+```
+hash256 = Digest::SHA256.hexdigest message
+puts hash256 #=> aa82cded6e98f4b2616dc7910df4623f5856bea617eb18c651cf932f0ee24f27
+e = BigInt.new(hash256, base: 16)
+puts e #=> 77124295636732202635904343699324840500329162892545761296514851474479234830119
 
+signature = g.sign(sec, e)
+verify = g.verify(public_key, e, signature)
+puts "Result of verification: #{verify}" #=> true
+```
 
 ## To Do
 
@@ -106,44 +143,46 @@ To speed up signing (significantly) and verification (a bit), you can use the cu
 
 * [ ] implement keccack 224, 256, 384, 512
 
-* [ ] add precomputed g * 2^n for more curves
-
 * [ ] provide more usage examples, e.g. generating an Ethereum address from a private key (one Keccak is implemented), genrating a Bitcoin address etc.
 
 * [ ] add h to group.cr, add ability to sign and verify signatures when h > 1
 
 ## Current benchmark (secp256k1) using SHA3
-```
-                           user     system      total        real
-key-pair generation:   0.022889   0.000033   0.022922 (  0.019881)
-sign:                  0.023829   0.000049   0.023878 (  0.021340)
-verify:                0.064223   0.008755   0.072978 (  0.065146)
-```
-If turn of 1 param check in verify method:
-```
-                           user     system      total        real
-key-pair generation:   0.050000   0.000000   0.050000 (  0.049207)
-sign:                  0.050000   0.000000   0.050000 (  0.042136)
-verify:                0.090000   0.010000   0.100000 (  0.084240)
-```
-Ruby ecdsa implementation:
-```
-                          user     system      total        real
-key-pair generation:  0.110000   0.000000   0.110000 (  0.105881)
-sign:                 0.110000   0.000000   0.110000 (  0.107868)
-verify:               0.210000   0.000000   0.210000 (  0.214049)
-```
 
-## Impact of using precomputed values
-
-Using the precomputed curve :secp256k1_PRE is faster than :secp256k1, especially for key-pair generation and signing:
+We use the following codes for benchmarking: 
 
 ```
-    key-pair generation:  46.90  ( 21.32ms) (± 4.85%)  10.4MB/op
-                   sign:  47.35  ( 21.12ms) (± 4.41%)  10.3MB/op
-                 verify:  14.83  ( 67.42ms) (± 6.27%)  32.5MB/op
+# G : cached generating point
+# P : cached public key of sender (useful for repeated signature verification) 
+# C : skipping signature verification sanity check (when public key is known)
+```
 
-key-pair generation PRE: 142.43  (  7.02ms) (± 5.30%)  3.44MB/op
-               sign_PRE: 141.27  (  7.08ms) (± 4.90%)  3.47MB/op
-             verify_PRE:  18.67  ( 53.55ms) (± 5.53%)  25.9MB/op
+The benchmarks were done on a laptop with an Intel(R) Xeon(R) CPU E3-1505M v6 @ 3.00GHz processor running Ubuntu on WSL2 (Windows Subsystem for Linux) with plenty of memory. This seems to be somewhat slower than running it natively on Linux, but it should give an idea of the relative performances. 
+
+```
+== Hashing 200-byte messages
+      SHA256 : 530.28k (  1.89µs) (± 7.08%)  224B/op        fastest
+    SHA3_256 : 350.25k (  2.86µs) (± 3.23%)  992B/op   1.51× slower
+
+== Hashing 2000-byte messages
+      SHA256 :  97.78k ( 10.23µs) (± 5.00%)    224B/op        fastest
+    SHA3_256 :  44.97k ( 22.23µs) (± 4.10%)  5.73kB/op   2.17× slower
+
+== Generating key-pairs
+    key-pair :  55.40  ( 18.05ms) (±12.13%)  10.4MB/op   3.19× slower
+  key-pair G : 176.83  (  5.66ms) (± 3.30%)   3.4MB/op        fastest
+
+== Signing
+        sign :  56.50  ( 17.70ms) (± 8.12%)  10.4MB/op   3.04× slower
+      sign G : 171.69  (  5.82ms) (± 3.48%)  3.46MB/op        fastest
+
+== Verifying
+      verify :  18.28  ( 54.71ms) (± 4.48%)  32.8MB/op   2.69× slower
+    verify G :  23.12  ( 43.25ms) (± 3.74%)  25.8MB/op   2.13× slower
+   verify GP :  49.16  ( 20.34ms) (± 3.08%)  12.1MB/op        fastest
+
+== Verifying without sanity checks
+    verify C :  27.26  ( 36.69ms) (± 9.30%)  20.8MB/op   3.14× slower
+   verify GC :  43.16  ( 23.17ms) (± 3.62%)  13.9MB/op   1.98× slower
+  verify GPC :  85.56  ( 11.69ms) (± 4.71%)   7.0MB/op        fastest
 ```

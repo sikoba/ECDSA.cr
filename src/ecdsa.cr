@@ -3,14 +3,16 @@ require "./ecdsa/exceptions/*"
 
 require "big"
 require "random"
-# require "digest/sha256"
+require "digest/sha256"
 require "./sha3/*"
 require "./sha3/digest/*"
 
 module ECDSA
-  def self.get_group(c : Symbol)
+
+  def self.get_group(c : Symbol, pre = true)
     raise "Group #{c} not found" unless CURVES.has_key?(c)
     h = CURVES[c]
-    return Group.new(c, h[:p], h[:a], h[:b], h[:gx], h[:gy], h[:n])
+    return Group.new(c, h[:p], h[:a], h[:b], h[:gx], h[:gy], h[:n], pre)
   end
+  
 end

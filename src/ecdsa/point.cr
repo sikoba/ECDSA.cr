@@ -82,23 +82,14 @@ module ECDSA
     end
 
     def *(i : Int) : Point
-      
-      # mul is only called when multiplying g
-      return self.mul(i) if @group.pre.size > 0 && self == @group.g
-      
-      res = @group.infinity
-      v = self
-
-      while i > 0
-        res = res + v if i.odd? && !v.is_a?(Nil) && !res.is_a?(Nil)
-        v = v.double
-        i >>= 1
-      end
-
-      return res
+      return self.fast_mul(i) if ( @group.use_pre && @group.cached.has_key?(self) )
+      return slow_mul(i)
     end
 
-    def mul(i : Int) : Point
+    def fast_mul(i : Int) : Point
+
+      # fast multiplication - with cached values
+
       d = @group.d
       br = i.to_s(base: 2)
 
@@ -114,10 +105,26 @@ module ECDSA
       v = self
 
       (0..d-1).each do |i|
-        res = res + @group.pre[i] if ary[i] == "1"
+        res = res + @group.cached[self][i] if ary[i] == "1"
       end
   
       res    
+    end
+
+    def slow_mul(i : Int) : Point
+
+      # slow multiplication - do not use cached values even when available
+
+      res = @group.infinity
+      v = self
+
+      while i > 0
+        res = res + v if i.odd? && !v.is_a?(Nil) && !res.is_a?(Nil)
+        v = v.double
+        i >>= 1
+      end
+
+      return res
     end
 
     def from_abscissa(new_x, parity)
