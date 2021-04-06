@@ -14,16 +14,16 @@ describe ECDSA::Point do
   describe "#initialize" do
     it "does not allow points not in group" do
       # (y**2 - x**3 - x*a - b) % p != 0
-      y = 10.to_big_i
-      x = 0.to_big_i
+      y = 1.to_big_i
+      x = 2.to_big_i
       group = ECDSA::Group.new(
         name: :custom,
-        p: 3.to_big_i,
-        a: 0.to_big_i,
-        b: 0.to_big_i,
-        gx: 0.to_big_i,
-        gy: 0.to_big_i,
-        n: 1.to_big_i
+        p: 11.to_big_i,
+        a: 1.to_big_i,
+        b: 6.to_big_i,
+        gx: 2.to_big_i,
+        gy: 7.to_big_i,
+        n: 13.to_big_i
       )
 
       expect_raises(ECDSA::PointNotInGroup) do
@@ -38,24 +38,24 @@ describe ECDSA::Point do
     it "assigns @x and @y mod @group.p" do
       group = ECDSA::Group.new(
         name: :custom,
-        p: 3.to_big_i,
+        p: 11.to_big_i,
         a: 1.to_big_i,
-        b: 1.to_big_i,
-        gx: 0.to_big_i,
-        gy: 0.to_big_i,
-        n: 1.to_big_i
+        b: 6.to_big_i,
+        gx: 2.to_big_i,
+        gy: 7.to_big_i,
+        n: 13.to_big_i
       )
 
       point = ECDSA::Point.new(
           group: group,
-          x: 10.to_big_i,
-          y: 24.to_big_i
+          x: 13.to_big_i,
+          y: 15.to_big_i
       )
 
       # 10 % 3
-      point.x.should eq 1
+      point.x.should eq 2
       # 24 % 3
-      point.y.should eq 0
+      point.y.should eq 4
     end
   end
 
