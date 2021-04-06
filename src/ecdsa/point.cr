@@ -5,7 +5,7 @@ module ECDSA
     getter y : BigInt
     getter infinity : Bool
 
-    def initialize(@group : Group, @x : BigInt, @y : BigInt)
+    def initialize(@group : Group, @x : BigInt, @y : BigInt, override = 0)
       @infinity = false
       raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
       @x = @x % @group.p
@@ -82,6 +82,39 @@ module ECDSA
     end
 
     def *(i : Int) : Point
+      return self.fast_mul(i) if ( @group.use_pre && @group.cached.has_key?(self) )
+      return slow_mul(i)
+    end
+
+    def fast_mul(i : Int) : Point
+
+      # fast multiplication - with cached values
+
+      d = @group.d
+      br = i.to_s(base: 2)
+
+      if br.size < d
+        # need to prepend some zeroes
+        h = d - br.size
+        br = "0" * h + br
+      end
+
+      ary = br.split("").reverse
+ 
+      res = @group.infinity
+      v = self
+
+      (0..d-1).each do |i|
+        res = res + @group.cached[self][i] if ary[i] == "1"
+      end
+  
+      res    
+    end
+
+    def slow_mul(i : Int) : Point
+
+      # slow multiplication - do not use cached values even when available
+
       res = @group.infinity
       v = self
 

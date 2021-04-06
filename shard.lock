@@ -1,6 +1,2 @@
-version: 1.0
-shards:
-  sha3:
-    github: OscarBarrett/crystal-sha3
-    version: 0.3.0
-
+version: 2.0
+shards: {}

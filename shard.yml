@@ -1,19 +1,18 @@
 name: ecdsa
-version: 0.2.0
+version: 1.0.0
 
 authors:
   - Alex Kampa <ak@sikoba.com>
   - Ihor Tsykalo <sarcasm008@gmail.com>
+  - Razvan Rosie
 
 targets:
   ecdsa:
     main: src/ecdsa.cr
 
-crystal: 0.26.1
+crystal: 0.36
 
 license: MIT
 
 dependencies:
-  sha3:
-    github: OscarBarrett/crystal-sha3
-    version: ~> 0.3
+
