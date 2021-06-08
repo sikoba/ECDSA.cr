@@ -110,18 +110,32 @@ module ECDSA
     #
 
     def sign(secret_key : BigInt, message : String) : Signature
-      # inputs (k should not be used twice)
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
       sign(secret_key, message, temp_key_k)
     end
 
     def sign(secret_key : BigInt, e : BigInt) : Signature
-      # inputs (k should not be used twice)
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
       sign(secret_key, e, temp_key_k)
     end
 
+    def sign(secret_key : BigInt, message : String, temp_key_k : BigInt) : Signature
+      hash = Digest::SHA256.hexdigest(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)) # leftmost part
+      sign(secret_key, e, temp_key_k)
+    end
+
+    def sign_sha3_256(secret_key : BigInt, message : String) : Signature
+      hash = ECDSA::Math.sha3_256(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
+      sign(secret_key, e, temp_key_k)
+    end
+  
     def sign(secret_key : BigInt, e : BigInt, temp_key_k : BigInt) : Signature
+    
+      # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
+      
       # computing r
       curve_point = g * temp_key_k
       r = curve_point.x % n
@@ -134,16 +148,6 @@ module ECDSA
       Signature.new(r: r, s: s)
     end
 
-    def sign(secret_key : BigInt, message : String, temp_key_k : BigInt) : Signature
-      # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
-      hash = ECDSA::Math.hash(message)
-
-      # leftmost part of hash
-      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
-
-      sign(secret_key, e, temp_key_k)
-    end
-
     #
     # verify
     #
@@ -154,6 +158,16 @@ module ECDSA
 
     def verify(public_key : Point, e : BigInt, signature : Signature, check = true)
       verify(public_key, e, signature.r, signature.s, check)
+    end
+
+    def verify(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
+      hash = Digest::SHA256.hexdigest(message)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
+    end
+
+    def verify_sha3_256(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
+      hash = ECDSA::Math.sha3_256(message)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
     def verify(public_key : Point, e : BigInt, r : BigInt, s : BigInt, check = true) : Bool
@@ -173,12 +187,6 @@ module ECDSA
 
       v = xy.x % n
       v == r
-    end
-
-    def verify(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
-      hash = ECDSA::Math.hash(message)
-      # leftmost part of hash
-      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
     #

@@ -30,6 +30,9 @@ g2.add_to_cache(pub_a2) # ! point needs to be in the correct group
 message = Random::Secure.hex(200)
 message2000 = Random::Secure.hex(2000)
 
+hashed_message = Digest::SHA3.hexdigest message
+e = ECDSA::Math.normalize_digest(hashed_message, ECDSA::Math.bit_length(g.p))
+
 signature = g.sign(sec_a, message)
 
 
@@ -83,7 +86,7 @@ end
 
 # # # # # # # # # #
 
-puts "\n== Signing\n"
+puts "\n== Signing (SHA256)\n"
 
 Benchmark.ips do |x|
 
@@ -93,6 +96,22 @@ Benchmark.ips do |x|
 
   x.report("      sign G :") do
     g1.sign(sec_a, message)
+  end
+
+end
+
+# # # # # # # # # #
+
+puts "\n== Signing (SHA3_256))\n"
+
+Benchmark.ips do |x|
+
+  x.report("        sign :") do
+    g0.sign_sha3_256(sec_a, message)
+  end
+
+  x.report("      sign G :") do
+    g1.sign_sha3_256(sec_a, message)
   end
 
 end
@@ -117,7 +136,6 @@ Benchmark.ips do |x|
 
 end
 
-
 # # # # # # # # # #
 
 puts "\n== Verifying without sanity checks\n"
@@ -137,4 +155,5 @@ Benchmark.ips do |x|
   end
 
 end
+
 ########################################

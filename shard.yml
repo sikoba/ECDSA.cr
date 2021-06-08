@@ -10,9 +10,6 @@ targets:
   ecdsa:
     main: src/ecdsa.cr
 
-crystal: 0.36
+crystal: ">= 0.36.0"
 
 license: MIT
-
-dependencies:
-

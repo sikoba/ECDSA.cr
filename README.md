@@ -89,7 +89,7 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 #=> 42655463775677901349476176253478345062189292709218709770749313858929229563957
 ```
 
-#### Signing using SHA3 (default)
+#### Signing using SHA256 (default)
 
 The default signature start by hashing the message using SHA3, then signs using a random integer:
 
@@ -120,16 +120,11 @@ verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
 ```
 
-#### Signing and verifying using SHA256
+#### Signing and verifying using SHA3_256
 
 ```
-hash256 = Digest::SHA256.hexdigest message
-puts hash256 #=> aa82cded6e98f4b2616dc7910df4623f5856bea617eb18c651cf932f0ee24f27
-e = BigInt.new(hash256, base: 16)
-puts e #=> 77124295636732202635904343699324840500329162892545761296514851474479234830119
-
-signature = g.sign(sec, e)
-verify = g.verify(public_key, e, signature)
+signature_sha3 = g.sign_sha3_256(sec, message)
+verify = g.verify(public_key, message, signature_sha3)
 puts "Result of verification: #{verify}" #=> true
 ```
 
