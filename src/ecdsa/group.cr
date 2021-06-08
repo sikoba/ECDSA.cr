@@ -131,6 +131,13 @@ module ECDSA
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
       sign(secret_key, e, temp_key_k)
     end
+
+    def sign_keccak_256(secret_key : BigInt, message : String) : Signature
+      hash = Digest::Keccak.hexdigest(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
+      sign(secret_key, e, temp_key_k)
+    end
   
     def sign(secret_key : BigInt, e : BigInt, temp_key_k : BigInt) : Signature
     

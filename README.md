@@ -17,7 +17,7 @@ This requires Crystal 0.36 or higher. An older version, which works with Crystal
 
 In order to speed up signing and signature verification, multiples of the generating point of the form g * 2^n are cached by default when initialising a curve (there is an optional flag to disable this).
 
-For the curve :secp256k1, these values are precomputed in ecdsa/precomuted.cr. Precomputing only provides a very slight gain when a curve is initialised, while increasing the overall size of the shard quite significantly, so we did not add precomputed values for other curves. More precomputed values can be added using local/precompute_gen.cr.
+For the curve :secp256k1, these values are precomputed in ecdsa/precomputed.cr. Precomputing only provides a very slight gain when a curve is initialised, while increasing the overall size of the shard quite significantly, so we did not add precomputed values for other curves. More precomputed values can be added using local/precompute_gen.cr.
 
 #### Caching public keys
 
@@ -93,7 +93,7 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 
 #### Signing using SHA256 (default)
 
-The default signature start by hashing the message using SHA3, then signs using a random integer:
+The default signature starts by hashing the message using SHA256, then signs using a random integer:
 
 ```
 signature = g.sign(sec, message)
@@ -122,12 +122,17 @@ verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
 ```
 
-#### Signing and verifying using SHA3_256
+#### Signing and verifying using SHA3-256 or Keccak-256
 
 ```
 signature_sha3 = g.sign_sha3_256(sec, message)
 verify = g.verify(public_key, message, signature_sha3)
 puts "Result of verification: #{verify}" #=> true
+
+signature_keccak = g.sign_keccak_256(sec, message)
+verify = g.verify(public_key, message, signature_keccak)
+puts "Result of verification: #{verify}" #=> true
+
 ```
 
 ## To Do
