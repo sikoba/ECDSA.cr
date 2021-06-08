@@ -11,7 +11,7 @@ dependencies:
 
 This requires Crystal 0.36 or higher. An older version, which works with Crystal 0.35 and uses SHA256 for hashing, is available as branch "legacy-crystal-0.35"
 
-## Improving Perfromance
+## Improving Performance
 
 #### Caching multiples of the generating point
 
@@ -39,13 +39,15 @@ g.verify(public_key, message, signature, false)
 
 ## Usage Examples
 
-#### SHA3
-
-We have implemented SHA3_256 in this shard. 
+#### SHA3 and Keccak
+We have implemented SHA3-256 and Keccak-256 in this shard. 
 
 ```
 res = Digest::SHA3.hexdigest "https://www.sikoba.com"
 puts res #=> 93adc6708e6c5d53c6dcab13ffd31d695b5bfd49282cf457d4ed4f323a83c751
+
+res = Digest::Keccak.hexdigest "https://www.sikoba.com"
+puts res #=> 957124317724f7b2d7acc95e8cbc59265ff6ec6c2aabfd91deac65fef457c093
 ```
 
 #### Initialising a group
