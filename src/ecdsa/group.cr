@@ -126,7 +126,7 @@ module ECDSA
     end
 
     def sign_sha3_256(secret_key : BigInt, message : String) : Signature
-      hash = ECDSA::Math.sha3_256(message)
+      hash = Digest::SHA3.hexdigest(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
       sign(secret_key, e, temp_key_k)
@@ -173,7 +173,12 @@ module ECDSA
     end
 
     def verify_sha3_256(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
-      hash = ECDSA::Math.sha3_256(message)
+      hash = Digest::SHA3.hexdigest(message)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
+    end
+
+    def verify_keccak_256(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
+      hash = Digest::Keccak.hexdigest(message)
       verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
