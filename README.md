@@ -107,10 +107,8 @@ You can also use your own random number:
 k = BigInt.new("5846704604701277839882806211944760658860225489638225087703968849823566991145", base: 10)
 signature = g.sign(sec, message, k)
 puts signature.r #=> 46936881718680924751941056637981176854079153858678292484057701054143224621739
-puts signature.s #=> 18442110116601975958734127083110648061233993479485730263351699466754248595366
+puts signature.s #=> 73284886333021363950527157119714987728926550430396121478503186774134962929068
 ```
-
-You can also use another hashing function, in which case you will need to sign a number. See "group.cr" for more ways to sign.
 
 #### Verify signature
 
@@ -135,17 +133,20 @@ puts "Result of verification: #{verify}" #=> true
 
 ```
 
+### Signing a number
+
+You can also sign a BigInt directly, cf "src/ecdsa/group.cr".
+
+
 ## To Do
 
 * [ ] benchmark against implementations in other languages
 
 * [ ] test against ECDSA implementations in other langauges
 
-* [ ] so far only SHA3_256 is implemented. Add SHA3 for 224, 384 and 512
+* [ ] add SHA3 for 224, 384 and 512 bits
 
-* [ ] implement keccack 224, 256, 384, 512
-
-* [ ] provide more usage examples, e.g. generating an Ethereum address from a private key (one Keccak is implemented), genrating a Bitcoin address etc.
+* [ ] provide more usage examples, e.g. generating an Ethereum address from a private key, generating a Bitcoin address etc.
 
 * [ ] add h to group.cr, add ability to sign and verify signatures when h > 1
 
@@ -159,7 +160,7 @@ We use the following codes for benchmarking:
 # C : skipping signature verification sanity check (when public key is known)
 ```
 
-The benchmarks were done on a laptop with an Intel(R) Xeon(R) CPU E3-1505M v6 @ 3.00GHz processor running Ubuntu on WSL2 (Windows Subsystem for Linux) with plenty of memory. This seems to be somewhat slower than running it natively on Linux, but it should give an idea of the relative performances. 
+The benchmarks were done on a laptop with a Xeon E3-1505M @ 3.00GHz processor running Ubuntu on Windows. This seems to be somewhat slower than running it natively on Linux, but it should give an idea of the relative performances. 
 
 ```
 == Hashing 200-byte messages
