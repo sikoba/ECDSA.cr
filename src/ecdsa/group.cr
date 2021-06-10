@@ -24,7 +24,8 @@ module ECDSA
       @d = ECDSA::Math.bit_length(p)
       @cached = Hash(ECDSA::Point, Array(ECDSA::Point)).new
 
-      @half_n = inverse(BigInt.new(2), @n) # will be @n/2 + 1 as n is prime
+      #@half_n = inverse(BigInt.new(2), @n) # will be @n/2 + 1 as n is prime
+      @half_n = (@n + 1).tdiv(2)
 
       if @use_pre
         if PRECOMPUTED.has_key?(@name)
@@ -165,7 +166,7 @@ module ECDSA
       s = (inverse(temp_key_k, n) * (e + secret_key * r)) % n
 
       # make sure s is at most @n/2
-      s = s - @half_n if s >= @half_n
+      s = @n - s if s >= @half_n
       return sign(secret_key, e) if s == 0
 
       Signature.new(r, s)
@@ -248,6 +249,19 @@ module ECDSA
       y2 = ( x**3 + @a*x + @b ) % @p
       y = ECDSA::Math.square_root(y2, @p, even)
       return Point.new(self, x, y)
+    end
+
+    #
+    # obtain a compact key
+    #
+
+    def get_compact_key(p : Point) : String
+      sx = p.x.to_s(16)
+      if p.y % 2 == 0
+        return "02" + sx
+      else
+        return "03" + sx
+      end
     end
 
     #

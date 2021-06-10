@@ -11,7 +11,7 @@ describe ECDSA::Group do
         secret_key: BigInt.new("a75c71811e2d4c969682309760f75b98b56ad74fd6cabd4026f19b7c90b145fc", base: 16),
         temp_key:   BigInt.new("530b6cea047239963332936bbb97440e5c833210d589d490151bdb659b593588", base: 16),
         r:          BigInt.new("f2d2ada1f74c03e0639b756b16ec0780ef6964cb6bf80fdf2513e0271580d9b2", base: 16),
-        s:          BigInt.new("2b3a27bc596b1202527434f807b9cac9d8bab0c3523db51f5431e783dff4407d", base: 16),
+        s:          BigInt.new("54c5d843a694edfdad8bcb07f8463535849cbdb005669afe8bb747c28826e023", base: 16),
       },
     ].each do |spec|
       sign_spec(spec[:group_name], spec[:message], spec[:secret_key], spec[:temp_key], spec[:r], spec[:s])
