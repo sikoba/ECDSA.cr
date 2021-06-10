@@ -11,13 +11,13 @@ dependencies:
 
 This requires Crystal 0.36 or higher. An older version, which works with Crystal 0.35 and uses SHA256 for hashing, is available as branch "legacy-crystal-0.35"
 
-## Improving Perfromance
+## Improving Performance
 
 #### Caching multiples of the generating point
 
 In order to speed up signing and signature verification, multiples of the generating point of the form g * 2^n are cached by default when initialising a curve (there is an optional flag to disable this).
 
-For the curve :secp256k1, these values are precomputed in ecdsa/precomuted.cr. Precomputing only provides a very slight gain when a curve is initialised, while increasing the overall size of the shard quite significantly, so we did not add precomputed values for other curves. More precomputed values can be added using local/precompute_gen.cr.
+For the curve :secp256k1, these values are precomputed in ecdsa/precomputed.cr. Precomputing only provides a very slight gain when a curve is initialised, while increasing the overall size of the shard quite significantly, so we did not add precomputed values for other curves. More precomputed values can be added using local/precompute_gen.cr.
 
 #### Caching public keys
 
@@ -39,13 +39,15 @@ g.verify(public_key, message, signature, false)
 
 ## Usage Examples
 
-#### SHA3
-
-We have implemented SHA3_256 in this shard. 
+#### SHA3 and Keccak
+We have implemented SHA3-256 and Keccak-256 in this shard. 
 
 ```
 res = Digest::SHA3.hexdigest "https://www.sikoba.com"
 puts res #=> 93adc6708e6c5d53c6dcab13ffd31d695b5bfd49282cf457d4ed4f323a83c751
+
+res = Digest::Keccak.hexdigest "https://www.sikoba.com"
+puts res #=> 957124317724f7b2d7acc95e8cbc59265ff6ec6c2aabfd91deac65fef457c093
 ```
 
 #### Initialising a group
@@ -91,7 +93,7 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 
 #### Signing using SHA256 (default)
 
-The default signature start by hashing the message using SHA3, then signs using a random integer:
+The default signature starts by hashing the message using SHA256, then signs using a random integer:
 
 ```
 signature = g.sign(sec, message)
@@ -105,10 +107,8 @@ You can also use your own random number:
 k = BigInt.new("5846704604701277839882806211944760658860225489638225087703968849823566991145", base: 10)
 signature = g.sign(sec, message, k)
 puts signature.r #=> 46936881718680924751941056637981176854079153858678292484057701054143224621739
-puts signature.s #=> 18442110116601975958734127083110648061233993479485730263351699466754248595366
+puts signature.s #=> 73284886333021363950527157119714987728926550430396121478503186774134962929068
 ```
-
-You can also use another hashing function, in which case you will need to sign a number. See "group.cr" for more ways to sign.
 
 #### Verify signature
 
@@ -120,13 +120,23 @@ verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
 ```
 
-#### Signing and verifying using SHA3_256
+#### Signing and verifying using SHA3-256 or Keccak-256
 
 ```
 signature_sha3 = g.sign_sha3_256(sec, message)
 verify = g.verify(public_key, message, signature_sha3)
 puts "Result of verification: #{verify}" #=> true
+
+signature_keccak = g.sign_keccak_256(sec, message)
+verify = g.verify(public_key, message, signature_keccak)
+puts "Result of verification: #{verify}" #=> true
+
 ```
+
+### Signing a number
+
+You can also sign a BigInt directly, cf "src/ecdsa/group.cr".
+
 
 ## To Do
 
@@ -134,11 +144,9 @@ puts "Result of verification: #{verify}" #=> true
 
 * [ ] test against ECDSA implementations in other langauges
 
-* [ ] so far only SHA3_256 is implemented. Add SHA3 for 224, 384 and 512
+* [ ] add SHA3 for 224, 384 and 512 bits
 
-* [ ] implement keccack 224, 256, 384, 512
-
-* [ ] provide more usage examples, e.g. generating an Ethereum address from a private key (one Keccak is implemented), genrating a Bitcoin address etc.
+* [ ] provide more usage examples, e.g. generating an Ethereum address from a private key, generating a Bitcoin address etc.
 
 * [ ] add h to group.cr, add ability to sign and verify signatures when h > 1
 
@@ -152,7 +160,7 @@ We use the following codes for benchmarking:
 # C : skipping signature verification sanity check (when public key is known)
 ```
 
-The benchmarks were done on a laptop with an Intel(R) Xeon(R) CPU E3-1505M v6 @ 3.00GHz processor running Ubuntu on WSL2 (Windows Subsystem for Linux) with plenty of memory. This seems to be somewhat slower than running it natively on Linux, but it should give an idea of the relative performances. 
+The benchmarks were done on a laptop with a Xeon E3-1505M @ 3.00GHz processor running Ubuntu on Windows. This seems to be somewhat slower than running it natively on Linux, but it should give an idea of the relative performances. 
 
 ```
 == Hashing 200-byte messages
