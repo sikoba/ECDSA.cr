@@ -1,5 +1,84 @@
+# https://github.com/crystal-lang/crystal/issues/8612
+# https://carc.in/#/r/89qh
+
+# require "big/big_int"
+
+@[Link("gmp")]
+lib LibGMP
+  fun mpz_powm_sec = __gmpz_powm_sec(rop : MPZ*, base : MPZ*, exp : MPZ*, mod : MPZ*)
+end 
+
 module ECDSA
   module Math
+    
+    def powm(n : BigInt, e : BigInt, p : BigInt) : BigInt
+      # This is an implementation of the basic binary method
+    
+      a = e.to_s(2).split("").reverse
+      d = a.size - 1
+    
+      # ref[i] = n**(2**i) % p
+      ref = Array(BigInt).new
+      ref << n
+      (1..d).each do |i|
+        ref << (ref[i-1] * ref[i-1]) % p
+      end
+    
+      res = BigInt.new(1)
+      (0..d).each do |i|
+        res = (res * ref[i]) % p if a[i] == "1"
+      end 
+    
+      return res
+    end
+
+    def self.is_quadratic_residue(n : BigInt, p : BigInt) : Bool
+      # Euler's criterion
+      # https://en.wikipedia.org/wiki/Euler%27s_criterion
+
+      # trivial case
+      return true if n % p == 0
+      
+      # general case
+      e = BigInt.new( (p-1).tdiv(2) )
+      res = BigInt.new
+      LibGMP.mpz_powm_sec(res, n, e, p)
+      return true if res == 1
+      return false
+    end
+
+    def self.square_root(n : BigInt, p : BigInt, even : Bool = true) : BigInt
+      # https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm
+      # https://github.com/jacksoninfosec/tonelli-shanks/blob/main/tonelli-shanks.py
+
+      # case p|n
+      return BigInt.new(0) if n % p == 0 
+
+      # raise exception if there is no root
+      raise Exception.new("square_root: #{n} does not have a square root in Z:#{p}") unless is_quadratic_residue(n, p)
+      
+      # case p % 4 = 3
+      if (p % 4 == 3)
+        e = BigInt.new( (p+1).tdiv(4) )
+        root = BigInt.new
+        LibGMP.mpz_powm_sec(root, n, e, p)
+
+        if ( (root % 2 == 0 && even) || (root % 2 == 1 && !even) )
+          return root
+        else
+          return p - root
+        end
+      end
+      
+      # case p % 4 = 1
+      if (p % 4 == 1)
+        raise Exception.new("square_root for p % 4 = 1 : not yet implemented : TODO")
+      end
+
+      return BigInt.new(0)
+
+    end  
+    
     def self.mod_inverse(a : BigInt, n : BigInt) : BigInt
       # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
 

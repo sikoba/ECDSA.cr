@@ -9,7 +9,7 @@ dependencies:
     version: ~> 1.0
 ```
 
-This requires Crystal 0.36 or higher. An older version, which works with Crystal 0.35 and uses SHA256 for hashing, is available as branch "legacy-crystal-0.35"
+This requires Crystal 0.36 or higher. An older version, which works with Crystal 0.35, is available as branch "legacy-crystal-0.35"
 
 ## Improving Performance
 
@@ -91,6 +91,10 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 #=> 42655463775677901349476176253478345062189292709218709770749313858929229563957
 ```
 
+#### r values returned by the signatue 
+
+Given a signature (r,s), the pair (r, s - n/2) is also a valid signatiure. Starting with commit ee201e3 (09JUN21), signing will always output the lower value of s.
+
 #### Signing using SHA256 (default)
 
 The default signature starts by hashing the message using SHA256, then signs using a random integer:
@@ -118,6 +122,13 @@ Assuming the public key has the components pub_x and pub_y:
 public_key = ECDSA::Point.new(g, pub_x, pub_y)
 verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
+```
+
+If you only have the compacted version of the key, which is a string of 66 characters, you can get the full public key like this:
+
+```
+g = ECDSA.get_group(:secp256k1)
+public_key = g.read_compact_key(compact_key)
 ```
 
 #### Signing and verifying using SHA3-256 or Keccak-256

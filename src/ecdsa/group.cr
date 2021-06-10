@@ -240,6 +240,17 @@ module ECDSA
     end
 
     #
+    # obtain public key from x coordinate (+ indication whether y point is even or odd)
+    #
+    def read_compact_key(s : String) : Point
+      even = s[0,2] == "02" ? true : false
+      x = BigInt.new(s[2..-1], base: 16)
+      y2 = ( x**3 + @a*x + @b ) % @p
+      y = ECDSA::Math.square_root(y2, @p, even)
+      return Point.new(self, x, y)
+    end
+
+    #
     # inverse
     #
 
