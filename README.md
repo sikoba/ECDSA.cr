@@ -93,7 +93,7 @@ puts "Public key (y): #{key_pair.[:public_key].y}"
 
 #### r values returned by the signatue 
 
-Given a signature (r,s), the pair (r, s - n/2) is also a valid signatiure. Starting with commit ee201e3 (09JUN21), signing will always output the lower value of s.
+Given a signature (r, s), the pair (r, n - s) is also a valid signatiure. In the current version, signing will always output the smaller value of s.
 
 #### Signing using SHA256 (default)
 
