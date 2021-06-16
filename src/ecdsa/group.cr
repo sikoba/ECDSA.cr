@@ -1,13 +1,13 @@
 module ECDSA
   class Group
     getter name : Symbol
-    getter p  : BigInt
-    getter a  : BigInt
-    getter b  : BigInt
+    getter p : BigInt
+    getter a : BigInt
+    getter b : BigInt
     getter gx : BigInt
     getter gy : BigInt
-    getter n  : BigInt
-    getter d  : Int32
+    getter n : BigInt
+    getter d : Int32
     getter use_pre : Bool
     getter cached : Hash(ECDSA::Point, Array(ECDSA::Point))
 
@@ -19,62 +19,60 @@ module ECDSA
                    @gy : BigInt,
                    @n : BigInt,
                    @use_pre : Bool = true)
-      
       @d = ECDSA::Math.bit_length(p)
       @cached = Hash(ECDSA::Point, Array(ECDSA::Point)).new
 
       if @use_pre
         if PRECOMPUTED.has_key?(@name)
           ary = Array(ECDSA::Point).new
-          (0..@d-1).each do |i|
+          (0..@d - 1).each do |i|
             ary << Point.new(self, PRECOMPUTED[@name][i][0], PRECOMPUTED[@name][i][1])
           end
           @cached[self.g] = ary
         else
-          @cached[self.g] = self.precompute_g()
+          @cached[self.g] = self.precompute_g
         end
       end
-
     end
 
-    def precompute_g()
+    def precompute_g
       ary = Array(ECDSA::Point).new
       pt = self.g
-      (0..@d-1).each do |i|
+      (0..@d - 1).each do |i|
         ary << pt
         pt = pt.slow_mul(2)
       end
       ary
     end
 
-    def add_to_cache( pt : ECDSA::Point )
+    def add_to_cache(pt : ECDSA::Point)
       return if @cached.has_key?(pt)
-      
+
       ptc = pt
-      #ptc = Point.new(self, pt.x, pt.y)
-      
+      # ptc = Point.new(self, pt.x, pt.y)
+
       ary = Array(ECDSA::Point).new
-      (0..@d-1).each do |i|
+      (0..@d - 1).each do |i|
         ary << ptc
         ptc = ptc.slow_mul(2)
       end
       @cached[pt] = ary
     end
 
-    def remove_from_cache( pt : ECDSA::Point )
+    def remove_from_cache(pt : ECDSA::Point)
       return unless @cached.has_key?(pt)
       return if pt == self.g
       @cached.delete(pt)
-    end    
+    end
 
-    def ==( other : ECDSA::Group )
-      ( @name == other.name ) &&
-      ( @p == other.p ) &&
-      ( @a == other.a ) &&
-      ( @b == other.b ) &&
-      ( @gx == other.gx ) &&
-      ( @gy == other.gy ) &&
-      ( @n == other.n )
+    def ==(other : ECDSA::Group)
+      (@name == other.name) &&
+        (@p == other.p) &&
+        (@a == other.a) &&
+        (@b == other.b) &&
+        (@gx == other.gx) &&
+        (@gy == other.gy) &&
+        (@n == other.n)
     end
 
     def g
@@ -110,12 +108,12 @@ module ECDSA
     #
 
     def sign(secret_key : BigInt, message : String) : Signature
-      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
       sign(secret_key, message, temp_key_k)
     end
 
     def sign(secret_key : BigInt, e : BigInt) : Signature
-      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
       sign(secret_key, e, temp_key_k)
     end
 
@@ -128,14 +126,13 @@ module ECDSA
     def sign_sha3_256(secret_key : BigInt, message : String) : Signature
       hash = ECDSA::Math.sha3_256(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
-      temp_key_k = ECDSA::Math.random(BigInt.new(1), n-1)
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
       sign(secret_key, e, temp_key_k)
     end
-  
+
     def sign(secret_key : BigInt, e : BigInt, temp_key_k : BigInt) : Signature
-    
       # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
-      
+
       # computing r
       curve_point = g * temp_key_k
       r = curve_point.x % n
@@ -170,6 +167,10 @@ module ECDSA
       verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
+    def verify_sha3_256_plain(public_key : Point, hash : String, signature : Signature)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), signature.r, signature.s, check)
+    end
+
     def verify(public_key : Point, e : BigInt, r : BigInt, s : BigInt, check = true) : Bool
       raise SignatureNotInRange.new unless (1...n).covers?(r) && (1...n).covers?(s)
 
@@ -198,4 +199,3 @@ module ECDSA
     end
   end
 end
-
