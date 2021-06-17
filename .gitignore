@@ -3,3 +3,5 @@
 /bin/
 /.shards/
 *.dwarf
+/local/
+/spec/ecdsa/test_spec.cr
