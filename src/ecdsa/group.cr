@@ -10,6 +10,7 @@ module ECDSA
     getter d : Int32
     getter use_pre : Bool
     getter cached : Hash(ECDSA::Point, Array(ECDSA::Point))
+    getter half_n : BigInt
 
     def initialize(@name : Symbol,
                    @p : BigInt,
@@ -21,6 +22,8 @@ module ECDSA
                    @use_pre : Bool = true)
       @d = ECDSA::Math.bit_length(p)
       @cached = Hash(ECDSA::Point, Array(ECDSA::Point)).new
+
+      @half_n = inverse(BigInt.new(2), @n) # will be @n/2 + 1 as n is prime
 
       if @use_pre
         if PRECOMPUTED.has_key?(@name)
@@ -104,18 +107,33 @@ module ECDSA
     end
 
     #
-    # sign
+    # sign (with hashing)
     #
 
     def sign(secret_key : BigInt, message : String) : Signature
-      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
-      sign(secret_key, message, temp_key_k)
-    end
-
-    def sign(secret_key : BigInt, e : BigInt) : Signature
+      hash = Digest::SHA256.hexdigest(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
       sign(secret_key, e, temp_key_k)
     end
+
+    def sign_sha3_256(secret_key : BigInt, message : String) : Signature
+      hash = Digest::SHA3.hexdigest(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
+      sign(secret_key, e, temp_key_k)
+    end
+
+    def sign_keccak_256(secret_key : BigInt, message : String) : Signature
+      hash = Digest::Keccak.hexdigest(message)
+      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
+      temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
+      sign(secret_key, e, temp_key_k)
+    end
+
+    #
+    # sign (SHA256 with own temp key)
+    #
 
     def sign(secret_key : BigInt, message : String, temp_key_k : BigInt) : Signature
       hash = Digest::SHA256.hexdigest(message)
@@ -123,9 +141,11 @@ module ECDSA
       sign(secret_key, e, temp_key_k)
     end
 
-    def sign_sha3_256(secret_key : BigInt, message : String) : Signature
-      hash = ECDSA::Math.sha3_256(message)
-      e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
+    #
+    # sign (no hashing)
+    #
+
+    def sign(secret_key : BigInt, e : BigInt) : Signature
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
       sign(secret_key, e, temp_key_k)
     end
@@ -140,21 +160,28 @@ module ECDSA
 
       # computing s
       s = (inverse(temp_key_k, n) * (e + secret_key * r)) % n
+
+      # make sure s is at most @n/2
+      s = s - @half_n if s >= @half_n
       return sign(secret_key, e) if s == 0
 
-      Signature.new(r: r, s: s)
+      Signature.new(r, s)
     end
 
     #
-    # verify
+    # verify (number)
+    #
+
+    def verify(public_key : Point, e : BigInt, signature : Signature, check = true)
+      verify(public_key, e, signature.r, signature.s, check)
+    end
+
+    #
+    # verify (SHA256)
     #
 
     def verify(public_key : Point, message : String, signature : Signature, check = true)
       verify(public_key, message, signature.r, signature.s, check)
-    end
-
-    def verify(public_key : Point, e : BigInt, signature : Signature, check = true)
-      verify(public_key, e, signature.r, signature.s, check)
     end
 
     def verify(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
@@ -162,14 +189,41 @@ module ECDSA
       verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
+    #
+    # verify (SHA3-256)
+    #
+
+    def verify_sha3_256(public_key : Point, message : String, signature : Signature, check = true)
+      verify_sha3_256(public_key, message, signature.r, signature.s, check)
+    end
+
     def verify_sha3_256(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
-      hash = ECDSA::Math.sha3_256(message)
+      hash = Digest::SHA3.hexdigest(message)
       verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
     end
 
     def verify_sha3_256_plain(public_key : Point, hash : String, signature : Signature)
       verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), signature.r, signature.s, check)
     end
+
+    #
+    # verify (Keccak-256)
+    #
+
+    def verify_keccak_256(public_key : Point, message : String, signature : Signature, check = true)
+      verify_keccak_256(public_key, message, signature.r, signature.s, check)
+    end
+
+    def verify_keccak_256(public_key : Point, message : String, r : BigInt, s : BigInt, check = true) : Bool
+      hash = Digest::Keccak.hexdigest(message)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), r, s, check)
+    end
+
+    def verify_keccak_256_plain(public_key : Point, hash : String, signature : Signature)
+      verify(public_key, ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)), signature.r, signature.s, check)
+    end
+
+    # verify raw
 
     def verify(public_key : Point, e : BigInt, r : BigInt, s : BigInt, check = true) : Bool
       raise SignatureNotInRange.new unless (1...n).covers?(r) && (1...n).covers?(s)
@@ -194,7 +248,7 @@ module ECDSA
     # inverse
     #
 
-    def inverse(n1 : BigInt, n2 : BigInt)
+    def inverse(n1 : BigInt, n2 : BigInt) : BigInt
       ECDSA::Math.mod_inverse(n1, n2)
     end
   end

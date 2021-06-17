@@ -9,19 +9,18 @@ macro create_key_pair_spec(group_name, secret_key, public_key_x, public_key_y)
   end
 end
 
-macro sign_spec(group_name, message, secret_key, temp_key, s, r)
+macro sign_spec(group_name, message, secret_key, temp_key, r, s)
   it "#{ {{ group_name }} }" do
     message     = {{ message }}
     group       = ECDSA.get_group {{ group_name }}
     secret_key  = {{ secret_key }}
     temp_key    = {{ temp_key }}
+    r           = {{ r }}
+    s           = {{ s }}
 
     signature = group.sign(secret_key, message, temp_key)
 
-    signature.should eq ECDSA::Signature.new(
-      s: {{ s }},
-      r: {{ r }}
-    )
+    signature.should eq ECDSA::Signature.new(r, s)
   end
 end
 
