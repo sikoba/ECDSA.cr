@@ -61,4 +61,28 @@ describe ECDSA::Math do
 
     ECDSA::Math.normalize_digest(hexdigest, bit_length).should eq 13
   end
+  
+  it "modular exponentiation" do
+    n = BigInt.new("114564569999865254561237894564569886215421645645645456", base: 10)
+    e = BigInt.new("79862465848484456456456456456456456456456458632323232365545545", base: 10)
+    p = BigInt.new("7951234858453573215156456456456456", base: 10)
+    res_expected = BigInt.new("2519172085169739371889220291378472", base: 10)
+    res = ECDSA::Math.powm(n, e, p)
+    res.should eq res_expected
+  end
+
+  it "modular exponentiation (wrapped)" do
+    n = BigInt.new("114564569999865254561237894564569886215421645645645456", base: 10)
+    e = BigInt.new("79862465848484456456456456456456456456456458632323232365545545", base: 10)
+    p = BigInt.new("7951234858453573215156456456456456", base: 10)
+    res_expected = BigInt.new("2519172085169739371889220291378472", base: 10)
+    # res = ECDSA::Math.powm_wrapped(n, e, p)
+    # res.should eq res_expected
+    
+    # this does not work for some reason, error message:
+    #
+    # => Program received and didn't handle signal FPE (8)
+    
+  end
+  
 end

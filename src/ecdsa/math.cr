@@ -1,8 +1,6 @@
 # https://github.com/crystal-lang/crystal/issues/8612
 # https://carc.in/#/r/89qh
 
-# require "big/big_int"
-
 @[Link("gmp")]
 lib LibGMP
   fun mpz_powm_sec = __gmpz_powm_sec(rop : MPZ*, base : MPZ*, exp : MPZ*, mod : MPZ*)
@@ -11,24 +9,38 @@ end
 module ECDSA
   module Math
     
-    def powm(n : BigInt, e : BigInt, p : BigInt) : BigInt
+    def self.powm(n : BigInt, e : BigInt, p : BigInt) : BigInt
       # This is an implementation of the basic binary method
+      # This can be done much more efficiently, cf https://www.youtube.com/watch?v=3Bh7ztqBpmw
     
       a = e.to_s(2).split("").reverse
       d = a.size - 1
     
       # ref[i] = n**(2**i) % p
-      ref = Array(BigInt).new
-      ref << n
-      (1..d).each do |i|
-        ref << (ref[i-1] * ref[i-1]) % p
-      end
+      # ref = Array(BigInt).new
+      # ref << n
+      # (1..d).each do |i|
+        # ref << (ref[i-1] * ref[i-1]) % p
+      # end
     
+      # res = BigInt.new(1)
+      # (0..d).each do |i|
+        # res = (res * ref[i]) % p if a[i] == "1"
+      # end 
+
       res = BigInt.new(1)
+      pow = n
       (0..d).each do |i|
-        res = (res * ref[i]) % p if a[i] == "1"
+        res = (res * pow) % p if a[i] == "1"
+        pow = (pow**2) % p
       end 
     
+      return res
+    end
+    
+    def self.powm_wrapped(n : BigInt, e : BigInt, p : BigInt) : BigInt
+      res = BigInt.new()
+      LibGMP.mpz_powm_sec(res, n, e, p)
       return res
     end
 
