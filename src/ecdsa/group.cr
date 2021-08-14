@@ -246,11 +246,22 @@ module ECDSA
     end
 
     #
-    # obtain public key from x coordinate (+ indication whether y point is even or odd)
+    # obtain full public key from x coordinate (+ indication whether y point is even or odd)
     #
+
     def read_compact_key(s : String) : Point
       even = s[0, 2] == "02" ? true : false
       x = BigInt.new(s[2..-1], base: 16)
+      y2 = (x**3 + @a*x + @b) % @p
+      y = ECDSA::Math.square_root(y2, @p, even)
+      return Point.new(self, x, y)
+    end
+
+    #
+    # obtain point from x coordinate (+ indication whether y should be even or odd)
+    #
+
+    def get_point_from_x(x : BigInt, even : Bool = true) : Point
       y2 = (x**3 + @a*x + @b) % @p
       y = ECDSA::Math.square_root(y2, @p, even)
       return Point.new(self, x, y)
@@ -276,5 +287,15 @@ module ECDSA
     def inverse(n1 : BigInt, n2 : BigInt) : BigInt
       ECDSA::Math.mod_inverse(n1, n2)
     end
+
+    #
+    # recover a public key from signature and 
+    #
+
+    def recover_public_key(h : BigInt, r : BigInt, s : BigInt, even : Bool = true) : Point
+      p = get_point_from_x(r, even)
+      (p * s + g * (n-h)) * inverse(r, n)  
+    end
+
   end
 end

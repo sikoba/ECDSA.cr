@@ -149,6 +149,23 @@ puts "Result of verification: #{verify}" #=> true
 You can also sign a BigInt directly, cf "src/ecdsa/group.cr".
 
 
+### Recovering a public key from a signature
+
+If you have a signature, and you know what number has been signed, candidates for the corresponding public key can be computed. There are generally 2 candidates, one with an even y value, the other with an odd one. In some extremely rare cases (probability 10^-38) there may be 4 candidates, but we don't deal with it. Cf for example on stackexchange: [60218](https://crypto.stackexchange.com/questions/60218/recovery-public-key-from-secp256k1-signature-and-message) [18105](https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-public-key-from-an-ecdsa-signature-work)
+
+An example is given in spec/ecdsa/pubkey_from_sig_spec.cr:
+
+```
+g = ECDSA.get_group :secp256k1
+
+h = BigInt.new("3F891FDA3704F0368DAB65FA81EBE616F4AA2A0854995DA4DC0B59D2CADBD64F", base: 16)
+s = BigInt.new("BC9644F1625AF13841E589FD00653AE8C763309184EA0DE481E8F06709E5D1CB", base: 16)
+r = BigInt.new("A5C7B7756D34D8AAF6AA68F0B71644F0BEF90D8BFD126CE951B6060498345089", base: 16)
+    
+pub_even = g.recover_public_key(h, r, s, true)
+pub_odd = g.recover_public_key(h, r, s, false)
+```
+
 ## To Do
 
 * [ ] benchmark against implementations in other languages
