@@ -151,7 +151,7 @@ You can also sign a BigInt directly, cf "src/ecdsa/group.cr".
 
 ### Recovering a public key from a signature
 
-If you have a signature, and you know what number has been signed, candidates for the corresponding public key can be computed. There are generally 2 candidates, one with an even y value, the other with an odd one. In some extremely rare cases (probability 10^-38) there may be 4 candidates, but we don't deal with it. Cf for example on stackexchange: [60218](https://crypto.stackexchange.com/questions/60218/recovery-public-key-from-secp256k1-signature-and-message) [18105](https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-public-key-from-an-ecdsa-signature-work)
+If you have a signature, and you know what number has been signed, candidates for the corresponding public key can be computed. For curves with cofactor h = 1, which are the only ones supported for now, there are generally 2 candidates: one with an even y value matching r, the other with an odd one. In some extremely rare cases, when r < p - n, there may be 4 candidates, but we don't deal with it. For secp256k1, the probability of this happening is only about 10^-38. Cf for example on stackexchange: [60218](https://crypto.stackexchange.com/questions/60218/recovery-public-key-from-secp256k1-signature-and-message) [18105](https://crypto.stackexchange.com/questions/18105/how-does-recovering-the-public-key-from-an-ecdsa-signature-work)
 
 An example is given in spec/ecdsa/pubkey_from_sig_spec.cr:
 

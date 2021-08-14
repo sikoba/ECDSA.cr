@@ -289,7 +289,7 @@ module ECDSA
     end
 
     #
-    # recover a public key from signature and 
+    # recover a public key from signature and hash
     #
 
     def recover_public_key(h : BigInt, r : BigInt, s : BigInt, even : Bool = true) : Point
