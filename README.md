@@ -174,6 +174,17 @@ pub_odd = g.recover_public_key(h, r, s, false)
 address = ECDSA.eth_address(public_key)
 ```
 
+### Verify Ethereum signature of a string of data
+
+This verifies the signature as produced by the web3.eth.personal.sign() function, or by the "Sign Message" on MEW, Mycrypto etc.
+
+```
+data = "Hello, world!"
+signature = "0x1038030f8b327e0ceb7a92b9047fa3bdf43cde80f90f3593478de1796d898b4c2b409adf536062205fb68aa68f842c5c4e163e7228d47999e12af47f128c2a931c"
+eth_account = "0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9"
+ECDSA.verify_ethereum_signature(data, signature, eth_account) #=> true
+```
+
 ## To Do
 
 * [ ] benchmark against implementations in other languages
