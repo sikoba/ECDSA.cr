@@ -136,5 +136,30 @@ module ECDSA
       end
       raise PointNotInGroup.new("Point (#{x}, #{y}) is not in group #{group}") unless is_in_group?
     end
+
+    # string representations of point in hex
+
+    def hex_full() : String
+      xhex = pad0(x.to_s(16)) 
+      yhex = pad0(y.to_s(16))
+      return "#{xhex}#{yhex}"
+    end
+
+    def hex_full04() : String
+      return "04#{hex_full()}"
+    end    
+
+    def hex_compact() : String
+      pre = (y % 2 == 0) ? "02" : "03"
+      xhex = pad0(x.to_s(16))
+      return "#{pre}#{xhex}"
+    end
+
+    def pad0(s : String) : String
+      hex_length = (@group.d / 4).ceil.to_i
+      return s if s.size >= hex_length
+      return "0" * (hex_length - s.size) + s
+    end
+
   end
 end

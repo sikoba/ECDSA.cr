@@ -9,5 +9,6 @@ module ECDSA
     def ==(other : Signature) : Bool
       s == other.s && r == other.r
     end
+
   end
 end

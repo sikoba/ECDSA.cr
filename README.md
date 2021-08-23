@@ -124,6 +124,8 @@ verify = g.verify(public_key, message, signature)
 puts "Result of verification: #{verify}" #=> true
 ```
 
+#### From compact to full key
+
 If you only have the compacted version of the key, which is a string of 66 characters, you can get the full public key like this:
 
 ```
@@ -166,6 +168,12 @@ pub_even = g.recover_public_key(h, r, s, true)
 pub_odd = g.recover_public_key(h, r, s, false)
 ```
 
+### Generate an Ethereum address from a public key 
+
+```
+address = ECDSA.eth_address(public_key)
+```
+
 ## To Do
 
 * [ ] benchmark against implementations in other languages
@@ -174,7 +182,7 @@ pub_odd = g.recover_public_key(h, r, s, false)
 
 * [ ] add SHA3 for 224, 384 and 512 bits
 
-* [ ] provide more usage examples, e.g. generating an Ethereum address from a private key, generating a Bitcoin address etc.
+* [ ] provide more usage examples, e.g. generating a Bitcoin address etc.
 
 * [ ] add h to group.cr, add ability to sign and verify signatures when h > 1
 
