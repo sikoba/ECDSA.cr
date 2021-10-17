@@ -11,8 +11,14 @@ describe ECDSA do
     sec = BigInt.new("f8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315", base: 16)
     public_key = g.create_key_pair(sec)[:public_key]
   
-    ECDSA.eth_address(public_key).should eq "0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9"
+    ECDSA.eth_address(public_key).should eq "0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9"
+    ECDSA.eth_address(public_key).downcase.should eq "0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9"
+  end
 
+  it "convert Ethereum address to mixed-case" do
+
+    address = "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed".downcase
+    ECDSA.eth_address_to_mixed_case(address).should eq "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed"
   end
 
   it "verify Ethereum signed message #1" do

@@ -174,6 +174,13 @@ pub_odd = g.recover_public_key(h, r, s, false)
 address = ECDSA.eth_address(public_key)
 ```
 
+This now returns the mixed-case version as per EIP-55. To convert an account to mixed-case:
+
+```
+address = "0x5aaeb6053f3e94c9b9a09f33669435e7ef1beaed"
+puts ECDSA.eth_address_to_mixed_case(address) #=> 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed
+```
+
 ### Verify Ethereum signature of a string of data
 
 This verifies the signature as produced by the web3.eth.personal.sign() function, or by the "Sign Message" on MEW, Mycrypto etc.

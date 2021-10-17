@@ -26,8 +26,29 @@ module ECDSA
     # The last 40 nibbles (last 20 bytes) of the hash are the Ethereum address 
     #
     hash = Digest::Keccak.hexdigest pub_key.hex_full.hexbytes
-    return "0x#{hash[-40..-1]}"
+    address = hash[-40..-1]
+    return eth_address_to_mixed_case(address)
   end
+
+  def self.eth_address_to_mixed_case(address : String) : String
+    #
+    # implements Mixed-case checksum address encoding as per:
+    #
+    # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
+    #
+    # the address must be a 40-byte hex string (with or without leading 0x)
+    #
+    address_normalised = address.gsub(/^0x/,"").downcase
+    hash = Digest::Keccak.hexdigest address_normalised
+
+    a = address_normalised.chars
+    (0..39).each do |i|
+      a[i] = a[i].upcase if hash[i].to_i(16) >= 8
+    end
+    
+    return "0x#{a.join}"
+  end
+
 
   # Ethereum Signature Verification
   #
@@ -60,7 +81,7 @@ module ECDSA
     even = signature[130..131] =~ /1b|00/ ? true : false
     public_key = g.recover_public_key(h, r, s, even)
     eth_recovered = ECDSA.eth_address(public_key)
-    return true if eth_recovered == eth_account.downcase
+    return true if eth_recovered.downcase == eth_account.downcase
     return false
   end
 
