@@ -166,7 +166,10 @@ module ECDSA
       s = @n - s if s >= @half_n
       return sign(secret_key, e) if s == 0
 
-      Signature.new(r, s)
+      # compute v ()
+      v = curve_point.x % 2 == 0 ? 0 : 1
+
+      Signature.new(r, s, v)
     end
 
     #

@@ -168,6 +168,18 @@ pub_even = g.recover_public_key(h, r, s, true)
 pub_odd = g.recover_public_key(h, r, s, false)
 ```
 
+### Cnverting a Signature to a String
+
+A signature can be converted to a 132-character String, which is the Ethereum signature format. 
+
+```
+g = ECDSA.get_group :secp256k1
+s1 = BigInt.new("f8b8af8ce3c7cca5e300d33939540c10d45ce001b8f252bfbc57ba0342904181", base:16)
+k1 = BigInt.new("525A82B70E67874398067543FD84C83D30C175FDC45FDEEE082FE13B1D7CFDF1", base:16)
+sig = g.sign(s1, "Alan Turing", k1)
+puts sig.stringify() #=>  "0x7063ae83e7f62bbb171798131b4a0564b956930092b33b07b395615d9ec7e15c58dfcc1e00a35e1572f366ffe34ba0fc47db1e7189759b9fb233c5b05ab388ea1b"
+```
+
 ### Generate an Ethereum address from a public key 
 
 ```
