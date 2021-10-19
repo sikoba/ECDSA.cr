@@ -12,7 +12,7 @@ describe ECDSA::Group do
         temp_key:   BigInt.new("530b6cea047239963332936bbb97440e5c833210d589d490151bdb659b593588", base: 16),
         r:          BigInt.new("f2d2ada1f74c03e0639b756b16ec0780ef6964cb6bf80fdf2513e0271580d9b2", base: 16),
         s:          BigInt.new("54c5d843a694edfdad8bcb07f8463535849cbdb005669afe8bb747c28826e023", base: 16),
-        v: 0
+        v: 1
       },
     ].each do |spec|
       sign_spec(spec[:group_name], spec[:message], spec[:secret_key], spec[:temp_key], spec[:r], spec[:s], spec[:v])

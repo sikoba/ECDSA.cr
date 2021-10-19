@@ -167,7 +167,7 @@ module ECDSA
       return sign(secret_key, e) if s == 0
 
       # compute v ()
-      v = curve_point.x % 2 == 0 ? 0 : 1
+      v = curve_point.y % 2 == 0 ? 0 : 1
 
       Signature.new(r, s, v)
     end
