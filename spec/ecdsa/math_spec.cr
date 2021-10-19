@@ -56,10 +56,13 @@ describe ECDSA::Math do
   end
 
   it ".normalize_digest" do
-    hexdigest = 108.to_s(16) # 7 bits
+    # 108 in base 2 is 1101100 (7 bits)
+    # the fisrt 5 bits are 11011, which is 27 in base 10
+
+    hexdigest = 108.to_s(16)
     bit_length = 5
 
-    ECDSA::Math.normalize_digest(hexdigest, bit_length).should eq 13
+    ECDSA::Math.normalize_digest(hexdigest, bit_length).should eq 27
   end
   
   it "modular exponentiation" do

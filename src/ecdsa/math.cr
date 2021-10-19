@@ -149,7 +149,7 @@ module ECDSA
     def self.normalize_digest(hexdigest : String, bit_length : Int) : BigInt
       hexdigest_bit_size = hexdigest.size * 4 # each hex is 4 bit
       if hexdigest_bit_size > bit_length
-        BigInt.new(hexdigest, base: 16) >> (hexdigest_bit_size - bit_length)
+        BigInt.new(hexdigest, base: 16) >> (hexdigest_bit_size - bit_length - 1)
       else
         BigInt.new(hexdigest, base: 16)
       end
