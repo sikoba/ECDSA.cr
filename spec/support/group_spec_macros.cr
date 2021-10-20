@@ -9,7 +9,7 @@ macro create_key_pair_spec(group_name, secret_key, public_key_x, public_key_y)
   end
 end
 
-macro sign_spec(group_name, message, secret_key, temp_key, r, s, v)
+macro sign_spec(group_name, message, secret_key, temp_key, r, s, even_y, lowered_s)
   it "#{ {{ group_name }} }" do
     message     = {{ message }}
     group       = ECDSA.get_group {{ group_name }}
@@ -17,22 +17,24 @@ macro sign_spec(group_name, message, secret_key, temp_key, r, s, v)
     temp_key    = {{ temp_key }}
     r           = {{ r }}
     s           = {{ s }}
-    v           = {{ v }}
+    even_y      = {{ even_y }}
+    lowered_s   = {{ lowered_s }}
 
     signature = group.sign(secret_key, message, temp_key)
 
-    signature.should eq ECDSA::Signature.new(r, s, v)
+    signature.should eq ECDSA::Signature.new(r, s, even_y, lowered_s)
   end
 end
 
-macro verify_spec(group_name, message, r, s, v, public_key_x, public_key_y, result)
+macro verify_spec(group_name, message, r, s, even_y, lowered_s, public_key_x, public_key_y, result)
   it "#{ {{ group_name }} } #{ {{ result }} }" do
     message   = {{ message }}
     group     = ECDSA.get_group {{ group_name }}
     signature = ECDSA::Signature.new(
-      s: {{ s }},
-      r: {{ r }},
-      v: {{ v }}
+      s:         {{ s }},
+      r:         {{ r }},
+      even_y:    {{ even_y }},
+      lowered_s: {{ lowered_s }}
     )
     public_key = ECDSA::Point.new(
       group: group,
