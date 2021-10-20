@@ -76,9 +76,9 @@ module ECDSA
     sig = signature.gsub(/^0x/, "")
     res = Digest::Keccak.hexdigest "\u0019Ethereum Signed Message:\n#{data.size}#{data}"
     h = BigInt.new(res, base: 16)
-    r = BigInt.new(signature[2..65], base: 16)
-    s = BigInt.new(signature[66..129], base: 16)
-    even = signature[130..131] =~ /1b|00/ ? true : false
+    r = BigInt.new(sig[0..63], base: 16)
+    s = BigInt.new(sig[64..127], base: 16)
+    even = sig[128..129] =~ /1b|00/ ? true : false
     public_key = g.recover_public_key(h, r, s, even)
     eth_recovered = ECDSA.eth_address(public_key)
     return true if eth_recovered.downcase == eth_account.downcase

@@ -111,47 +111,47 @@ module ECDSA
     # sign (with hashing)
     #
 
-    def sign(secret_key : BigInt, message : String) : Signature
+    def sign(secret_key : BigInt, message : String, lower_s : Bool = true) : Signature
       hash = Digest::SHA256.hexdigest(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
-      sign(secret_key, e, temp_key_k)
+      sign(secret_key, e, temp_key_k, lower_s)
     end
 
-    def sign_sha3_256(secret_key : BigInt, message : String) : Signature
+    def sign_sha3_256(secret_key : BigInt, message : String, lower_s : Bool = true) : Signature
       hash = Digest::SHA3.hexdigest(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
-      sign(secret_key, e, temp_key_k)
+      sign(secret_key, e, temp_key_k, lower_s)
     end
 
-    def sign_keccak_256(secret_key : BigInt, message : String) : Signature
+    def sign_keccak_256(secret_key : BigInt, message : String, lower_s : Bool = true) : Signature
       hash = Digest::Keccak.hexdigest(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p))
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
-      sign(secret_key, e, temp_key_k)
+      sign(secret_key, e, temp_key_k, lower_s)
     end
 
     #
     # sign (SHA256 with own temp key)
     #
 
-    def sign(secret_key : BigInt, message : String, temp_key_k : BigInt) : Signature
+    def sign(secret_key : BigInt, message : String, temp_key_k : BigInt, lower_s : Bool = true) : Signature
       hash = Digest::SHA256.hexdigest(message)
       e = ECDSA::Math.normalize_digest(hash, ECDSA::Math.bit_length(p)) # leftmost part
-      sign(secret_key, e, temp_key_k)
+      sign(secret_key, e, temp_key_k, lower_s)
     end
 
     #
     # sign (no hashing)
     #
 
-    def sign(secret_key : BigInt, e : BigInt) : Signature
+    def sign(secret_key : BigInt, e : BigInt, lower_s : Bool = true) : Signature
       temp_key_k = ECDSA::Math.random(BigInt.new(1), n - 1)
-      sign(secret_key, e, temp_key_k)
+      sign(secret_key, e, temp_key_k, lower_s)
     end
 
-    def sign(secret_key : BigInt, e : BigInt, temp_key_k : BigInt) : Signature
+    def sign(secret_key : BigInt, e : BigInt, temp_key_k : BigInt, lower_s : Bool = true) : Signature
       # https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
 
       # computing r
@@ -162,12 +162,17 @@ module ECDSA
       # computing s
       s = (inverse(temp_key_k, n) * (e + secret_key * r)) % n
 
-      # make sure s is at most @n/2
-      s = @n - s if s >= @half_n
+      # optionally, make sure s is at most @n/2
+      s = @n - s if s >= @half_n && lower_s
       return sign(secret_key, e) if s == 0
 
       # compute v ()
       v = curve_point.y % 2 == 0 ? 0 : 1
+
+      # puts "curve_point"
+      # puts "x: #{curve_point.x}"
+      # puts "y: #{curve_point.y}"
+      # puts "v: #{v}"
 
       Signature.new(r, s, v)
     end
@@ -298,6 +303,15 @@ module ECDSA
     def recover_public_key(h : BigInt, r : BigInt, s : BigInt, even : Bool = true) : Point
       p = get_point_from_x(r, even)
       (p * s + g * (n-h)) * inverse(r, n)  
+    end
+
+    def recover_public_key(h : BigInt, signature : String) : Point
+      sig = signature.gsub(/^0x/, "")
+      r = BigInt.new(sig[0..63], base: 16)
+      s = BigInt.new(sig[64..127], base: 16)
+      even = sig[128..129] =~ /1b|00/ ? true : false
+      p = get_point_from_x(r, even)
+      (p * s + g * (n-h)) * inverse(r, n)
     end
 
   end
